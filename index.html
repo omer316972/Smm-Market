@@ -1,222 +1,54 @@
 <!DOCTYPE html>
-<html lang="az">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SSM PRO | Müştəri Paneli</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        :root { --bg: #05070a; --accent: #6366f1; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.1); }
-        * { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { background-color: var(--bg); color: #fff; margin: 0; padding-bottom: 120px; overflow-x: hidden; }
-        .glass-panel { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--border); }
-        .page { display: none; animation: fadeIn 0.4s ease-out; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .abb-card { background: linear-gradient(135deg, #004182 0%, #000000 100%); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
-        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
-        .nav-item { transition: 0.3s; color: #64748b; cursor: pointer; }
-        .nav-item.active { color: var(--accent); transform: translateY(-3px); }
-        #order-modal { backdrop-filter: blur(20px); z-index: 9999; }
-        .loader { border-top-color: var(--accent); animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        body { margin:0; background:#000; color:#fff; font-family:sans-serif; overflow:hidden; }
+        #market { display:none; padding:20px; height:100vh; overflow-y:auto; }
+        .item { background:#111; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #00ffcc; }
+        button { background:#00ffcc; color:#000; border:none; padding:10px; width:100%; border-radius:5px; font-weight:bold; }
+        #intro { position:fixed; width:100%; height:100%; z-index:100; display:flex; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
-
-    <header class="sticky top-0 z-50 glass-panel px-6 py-5 flex justify-between items-center">
-        <div class="flex flex-col">
-            <span class="text-xl font-800 italic tracking-tighter text-white">SSM<span class="text-indigo-500">PRO</span></span>
-            <span class="text-[9px] font-bold text-indigo-400 opacity-60 uppercase tracking-[2px]">PanelBaku API System</span>
-        </div>
-        <div class="glass-panel px-4 py-2 rounded-2xl border border-indigo-500/20 flex items-center gap-2">
-            <i class="fas fa-wallet text-indigo-400 text-xs"></i>
-            <span id="client-balance" class="font-800 text-sm">0.00</span><span class="text-xs opacity-60 ml-1">₼</span>
-        </div>
-    </header>
-
-    <section id="market-page" class="page active px-6 pt-6">
-        <div class="mb-6">
-            <label class="text-[10px] font-800 text-gray-500 uppercase tracking-widest ml-2 mb-2 block">Kateqoriya Seçin</label>
-            <div class="relative">
-                <select id="category-select" onchange="loadServices()" class="w-full glass-panel p-5 rounded-[25px] outline-none text-sm font-bold text-white cursor-pointer focus:border-indigo-500 transition-all">
-                    <option value="">Yüklənir...</option>
-                </select>
-                <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none opacity-50"><i class="fas fa-chevron-down text-xs"></i></div>
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <label class="text-[10px] font-800 text-gray-500 uppercase tracking-widest ml-2 mb-2 block">Xidmət Seçin</label>
-            <div id="services-container" class="space-y-4">
-                <div class="text-center py-10 opacity-30 italic text-sm">Kateqoriya seçilməyib</div>
-            </div>
-        </div>
-    </section>
-
-    <section id="wallet-page" class="page px-6 pt-4">
-        <div class="abb-card w-full h-56 rounded-[40px] p-8 relative overflow-hidden mb-8">
-            <div class="absolute top-0 right-0 p-8 opacity-10"><i class="fas fa-university text-5xl"></i></div>
-            <div class="flex flex-col h-full justify-between">
-                <div class="flex justify-between items-center">
-                    <span class="font-bold tracking-[3px] text-[10px] opacity-80 text-white uppercase italic">ABB Premium Payment</span>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-4">
-                </div>
-                <div class="text-2xl font-mono tracking-[4px] text-white">5522 0993 8668 8956</div>
-                <div class="flex justify-between items-end italic">
-                    <div>
-                        <p class="text-[9px] uppercase opacity-40 font-bold mb-1">Kart Sahibi</p>
-                        <p class="text-xs font-bold tracking-widest uppercase">SMM PRO OFFICIAL</p>
-                    </div>
-                    <p class="text-[10px] font-bold">ABB BANK</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass-panel p-8 rounded-[40px] border border-white/5">
-            <h3 class="font-bold mb-4 text-center text-indigo-400 uppercase tracking-[3px] text-xs">Balans Artırılması</h3>
-            <p class="text-[11px] text-gray-500 mb-8 text-center px-4 leading-relaxed italic">ABB kartına ödəniş edib qəbzi bura yükləyin. Admin təsdiqlədikdə balansınız artacaq.</p>
-            <label class="w-full bg-white/5 border-2 border-dashed border-white/10 py-12 rounded-[30px] flex flex-col items-center justify-center cursor-pointer active:scale-95 transition-all mb-4">
-                <i class="fas fa-cloud-upload-alt text-3xl text-indigo-500 mb-2"></i>
-                <span class="text-[10px] font-800 text-gray-400 uppercase tracking-widest">Qəbzi Seçin</span>
-                <input type="file" id="receipt-file" class="hidden" accept="image/*">
-            </label>
-            <button onclick="alert('Qəbz adminə göndərildi!')" class="w-full bg-indigo-600 py-5 rounded-[25px] font-800 text-xs uppercase tracking-[3px] shadow-2xl">Qəbzi Göndər</button>
-        </div>
-    </section>
-
-    <section id="profile-page" class="page px-6 pt-4">
-        <div class="glass-panel p-10 rounded-[40px] text-center border-b-4 border-indigo-500/10">
-            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-indigo-600 flex items-center justify-center text-2xl font-bold italic">U</div>
-            <h2 class="text-lg font-800 uppercase italic">Müştəri</h2>
-            <p class="text-indigo-400 text-[10px] font-mono tracking-[4px] mb-8">VERIFIED</p>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white/5 p-5 rounded-[30px] border border-white/5">
-                    <span class="block text-2xl font-800 italic">0</span>
-                    <span class="text-[9px] uppercase font-bold text-gray-500">Sifariş</span>
-                </div>
-                <div class="bg-white/5 p-5 rounded-[30px] border border-white/5">
-                    <span class="block text-2xl font-800 italic">0.00₼</span>
-                    <span class="text-[9px] uppercase font-bold text-gray-500">Xərc</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <nav class="fixed bottom-10 left-8 right-8 glass-panel rounded-[40px] p-5 flex justify-around items-center shadow-2xl z-[100]">
-        <div onclick="navTo('market', this)" class="nav-item active flex flex-col items-center gap-1">
-            <i class="fas fa-shopping-bag text-xl"></i><span class="text-[9px] font-800 uppercase tracking-widest">Market</span>
-        </div>
-        <div onclick="navTo('wallet', this)" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-credit-card text-xl"></i><span class="text-[9px] font-800 uppercase tracking-widest">Kassa</span>
-        </div>
-        <div onclick="navTo('profile', this)" class="nav-item flex flex-col items-center gap-1">
-            <i class="fas fa-user text-xl"></i><span class="text-[9px] font-800 uppercase tracking-widest">Profil</span>
-        </div>
-    </nav>
-
-    <div id="order-modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center p-6">
-        <div class="modal-content glass-panel w-full max-w-sm rounded-[45px] p-10 relative">
-            <div class="flex justify-between items-center mb-8">
-                <h3 class="text-[10px] font-800 uppercase tracking-widest">Yeni Sifariş</h3>
-                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center"><i class="fas fa-times text-xs"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div class="bg-indigo-600/10 p-5 rounded-3xl border border-indigo-500/10 mb-4">
-                    <p class="text-[8px] text-indigo-400 font-bold uppercase mb-1">Xidmət</p>
-                    <p id="modal-svc-name" class="text-xs font-bold leading-tight"></p>
-                </div>
-                <input type="text" id="order-link" placeholder="Link (Instagram/TikTok/...)" class="w-full glass-panel p-5 rounded-2xl outline-none text-xs font-bold">
-                <input type="number" id="order-qty" oninput="calcTotal()" placeholder="Miqdar" class="w-full glass-panel p-5 rounded-2xl outline-none text-xs font-bold">
-                <div class="flex justify-between p-2">
-                    <span class="text-[10px] font-bold text-gray-500">Cəmi:</span>
-                    <span id="modal-total-price" class="text-lg font-800 text-indigo-400">0.00 ₼</span>
-                </div>
-                <button onclick="alert('Sifariş alındı!')" class="w-full bg-indigo-600 py-5 rounded-[25px] font-800 text-xs uppercase tracking-[3px] shadow-lg">Təsdiqlə</button>
-            </div>
-        </div>
+    <div id="intro"></div>
+    <div id="market">
+        <h3>Balans: <span id="bal">0</span> AZN</h3>
+        <div id="list"></div>
     </div>
 
     <script>
-        const API_KEY = '8b6568db3c7b5625e82b9d5fc6acb8bd';
-        const MARGIN = 1.25; // 25% Qazanc
-        const PROXY = 'https://api.allorigins.win/raw?url=';
-        const API_URL = `https://panelbaku.com/api/v2?key=${API_KEY}&action=services`;
-        
-        let allServices = [];
-        let currentRate = 0;
+        const tg = window.Telegram.WebApp;
+        const api = "CLOUDFLARED_LINKIN_BURA"; // Termuxdan aldığın link
+        const uid = tg.initDataUnsafe.user.id;
 
-        async function init() {
-            try {
-                const res = await fetch(PROXY + encodeURIComponent(API_URL));
-                allServices = await res.json();
-                
-                // Kateqoriyaları unikal olaraq çıxar
-                const categories = [...new Set(allServices.map(s => s.category))];
-                const select = document.getElementById('category-select');
-                select.innerHTML = '<option value="">Kateqoriya seçin...</option>';
-                
-                categories.forEach(cat => {
-                    select.innerHTML += `<option value="${cat}">${cat}</option>`;
-                });
-            } catch (e) { console.error("API Error"); }
-        }
+        // 3D Planet
+        const scene = new THREE.Scene();
+        const cam = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('intro').appendChild(renderer.domElement);
+        const globe = new THREE.Mesh(new THREE.SphereGeometry(2, 32, 32), new THREE.MeshBasicMaterial({color:0x00ffcc, wireframe:true}));
+        scene.add(globe); cam.position.z = 5;
+        function anim() { requestAnimationFrame(anim); globe.rotation.y += 0.01; renderer.render(scene, cam); }
+        anim();
 
-        function loadServices() {
-            const cat = document.getElementById('category-select').value;
-            const container = document.getElementById('services-container');
-            container.innerHTML = '';
+        // 4 saniyə sonra aç
+        setTimeout(async () => {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('market').style.display = 'block';
             
-            if(!cat) return;
+            const u = await fetch(`${api}/api/user/${uid}`).then(r => r.json());
+            document.getElementById('bal').innerText = u.balance.toFixed(2);
 
-            const filtered = allServices.filter(s => s.category === cat);
-            filtered.forEach(s => {
-                const clientPrice = (parseFloat(s.rate) * MARGIN).toFixed(2);
-                container.innerHTML += `
-                <div class="glass-panel p-6 rounded-[30px] border border-white/5 active:scale-95 transition-all" onclick="openOrderModal('${s.name}', '${clientPrice}')">
-                    <h4 class="text-xs font-bold mb-4 leading-snug">${s.name}</h4>
-                    <div class="flex justify-between items-end border-t border-white/5 pt-4">
-                        <div>
-                            <p class="text-[8px] uppercase text-gray-500 font-bold mb-1">Qiymət (1k)</p>
-                            <span class="text-xl font-800 italic">${clientPrice} <span class="text-xs font-normal text-indigo-500">₼</span></span>
-                        </div>
-                        <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-plus text-xs"></i></div>
-                    </div>
-                </div>`;
+            const srvs = await fetch(`${api}/api/services`).then(r => r.json());
+            let h = '';
+            srvs.slice(0, 20).forEach(s => {
+                h += `<div class="item"><b>${s.name}</b><br>1k: ${s.rate} AZN<button>Sifariş</button></div>`;
             });
-        }
-
-        function openOrderModal(name, rate) {
-            currentRate = parseFloat(rate);
-            document.getElementById('modal-svc-name').innerText = name;
-            document.getElementById('modal-total-price').innerText = '0.00 ₼';
-            const modal = document.getElementById('order-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => modal.classList.add('modal-show'), 10);
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('order-modal');
-            modal.classList.remove('modal-show');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
-
-        function calcTotal() {
-            const qty = document.getElementById('order-qty').value || 0;
-            document.getElementById('modal-total-price').innerText = ((qty / 1000) * currentRate).toFixed(2) + ' ₼';
-        }
-
-        function navTo(page, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(page + '-page').classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        init();
+            document.getElementById('list').innerHTML = h;
+        }, 4000);
     </script>
 </body>
-    </html>
+</html>
