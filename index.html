@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Müasir Rəng Palitrası */
+        :root {
+            --bg: #0b0e11;
+            --card: #151a21;
+            --accent: #00d2ff; /* Neon Göy */
+            --accent-grad: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+            --text: #ffffff;
+            --muted: #848e9c;
+            --border: #2b2f36;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            padding: 10px 0 20px 0;
+            text-align: left;
+        }
+
+        .header h1 { font-size: 20px; margin: 0; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* PanelBaku Stilində Giriş Sahələri */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+            box-sizing: border-box;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Qiymət Hesablama Paneli */
+        .price-box {
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-label { font-size: 14px; color: var(--muted); }
+        .price-value { font-size: 18px; font-weight: bold; color: var(--accent); }
+
+        .btn-order {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: var(--accent-grad);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+            cursor: pointer;
+        }
+
+        /* Alt Menyu (Tablar) */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item { color: var(--muted); font-size: 12px; text-align: center; text-decoration: none; flex: 1; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item i { font-size: 18px; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>SMM PRO MARKET</h1>
+    </div>
+
+    <div id="order-page">
+        <div class="form-group">
+            <label><i class="fas fa-list"></i> Kateqoriya</label>
+            <select id="category" onchange="loadServices()">
+                <option value="insta">Instagram - Takipçi/Bəyəni</option>
+                <option value="tik">TikTok - İzlənmə/Like</option>
+                <option value="tele">Telegram - Abunə</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-shopping-cart"></i> Xidmət</label>
+            <select id="service" onchange="updateUI()"></select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-link"></i> Link</label>
+            <input type="text" id="link" placeholder="Məs: https://instagram.com/user">
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-sort-numeric-up"></i> Miqdar</label>
+            <input type="number" id="qty" placeholder="Məs: 1000" oninput="calculate()">
+        </div>
+
+        <div class="price-box">
+            <span class="price-label">Toplam Ödəniş:</span>
+            <span class="price-value" id="total">0.00 AZN</span>
+        </div>
+
+        <button class="btn-order" onclick="placeOrder()">SİFARİŞİ TƏSDİQLƏ</button>
+    </div>
+
+    <div style="height: 80px;"></div> <div class="nav-bar">
+        <a href="#" class="nav-item active"><i class="fas fa-rocket"></i>Market</a>
+        <a href="#" class="nav-item" onclick="alert('Balans artırmaq üçün bota çek atın!')"><i class="fas fa-wallet"></i>Balans</a>
+        <a href="#" class="nav-item" onclick="tg.close()"><i class="fas fa-user"></i>Profil</a>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Xidmət Məlumatları (Bura istədiyini əlavə et)
+        const db = {
+            insta: [
+                {id: 1, name: "♻️ Instagram Takipçi [Qarantili]", rate: 0.95},
+                {id: 2, name: "❤️ Instagram Bəyəni [Real]", rate: 0.30}
+            ],
+            tik: [
+                {id: 3, name: "🔥 TikTok İzlənmə [Full Sürət]", rate: 0.15}
+            ],
+            tele: [
+                {id: 4, name: "👥 Telegram Kanal Abunəsi", rate: 1.40}
+            ]
+        };
+
+        function loadServices() {
+            const cat = document.getElementById('category').value;
+            const sSelect = document.getElementById('service');
+            sSelect.innerHTML = '';
+            db[cat].forEach(s => {
+                sSelect.innerHTML += `<option value="${s.id}" data-rate="${s.rate}">${s.name}</option>`;
+            });
+            calculate();
+        }
+
+        function calculate() {
+            const qty = document.getElementById('qty').value || 0;
+            const rate = document.getElementById('service').selectedOptions[0].getAttribute('data-rate');
+            const total = (qty / 1000) * rate;
+            document.getElementById('total').innerText = total.toFixed(2) + " AZN";
+        }
+
+        function placeOrder() {
+            const data = {
+                service_id: document.getElementById('service').value,
+                service_name: document.getElementById('service').selectedOptions[0].text,
+                link: document.getElementById('link').value,
+                qty: document.getElementById('qty').value,
+                total: document.getElementById('total').innerText
+            };
+
+            if(!data.link || data.qty < 10) {
+                tg.showAlert("Zəhmət olmasa məlumatları tam doldurun!");
+                return;
+            }
+
+            tg.sendData(JSON.stringify(data));
+        }
+
+        window.onload = loadServices;
+    </script>
+</body>
+</html>
