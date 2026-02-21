@@ -7,176 +7,237 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg: #000000;
-            --card-bg: #1c1c1e;
-            --text: #ffffff;
-            --text-muted: #8e8e93;
-            --primary: #0a84ff;
-            --success: #32d74b;
-            --border: #38383a;
+            --bg: #080a12;
+            --card: #151926;
+            --accent: #3772ff;
+            --accent-gradient: linear-gradient(135deg, #3772ff 0%, #00f2fe 100%);
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-dim: #94a3b8;
         }
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); padding-bottom: 85px; -webkit-font-smoothing: antialiased; }
-        
-        /* Üst Başlıq */
-        .header { position: sticky; top: 0; background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 16px; text-align: center; border-bottom: 1px solid var(--border); z-index: 100; font-weight: 600; font-size: 17px; }
-        
-        /* Səhifələr */
-        .page { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'SF Pro Display', -apple-system, sans-serif; }
+        body { background: var(--bg); color: var(--text-main); overflow-x: hidden; padding-bottom: 90px; }
+
+        /* HEADER & BALANCE */
+        .top-bar {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(8, 10, 18, 0.8);
+            backdrop-filter: blur(20px);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo-text { font-size: 22px; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-chip {
+            background: var(--glass);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 600;
+        }
+
+        /* HORIZONTAL PROGRAM SELECTOR */
+        .category-scroll {
+            display: flex;
+            gap: 15px;
+            padding: 10px 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .prog-card {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            min-width: 80px; padding: 12px;
+            background: var(--card); border-radius: 18px;
+            border: 1px solid var(--border); transition: 0.3s;
+        }
+        .prog-card.active { border-color: var(--accent); background: rgba(55, 114, 255, 0.1); transform: translateY(-3px); }
+        .prog-card i { font-size: 24px; }
+
+        /* MAIN UI ELEMENTS */
+        .page { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-        
-        /* Kartlar */
-        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-        .card-title { font-size: 15px; font-weight: 600; margin: 0 0 12px 0; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        
-        /* Form, İnput və Düymələr */
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-        .input-box { width: 100%; background: #2c2c2e; border: 1px solid transparent; border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; transition: 0.2s; }
-        .input-box:focus { border-color: var(--primary); }
-        select.input-box { appearance: none; }
-        
-        .btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn:active { opacity: 0.7; transform: scale(0.98); }
-        
-        /* Alt Menyu */
-        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28, 28, 30, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .tab-item { flex: 1; padding: 10px 0; text-align: center; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
-        .tab-item i { font-size: 20px; }
-        .tab-item span { font-size: 11px; font-weight: 500; }
-        .tab-item.active { color: var(--primary); }
-        
-        /* Çat Sistemi */
-        .chat-container { height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-        .bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
-        .bubble.system { background: #2c2c2e; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .bubble.me { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .chat-input-area { display: flex; gap: 8px; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-input-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        input, select {
+            width: 100%; background: #1e2433; border: 1px solid var(--border);
+            padding: 15px; border-radius: 14px; color: white; margin-top: 8px;
+            font-size: 15px; outline: none; transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(55, 114, 255, 0.2); }
+
+        .btn-main {
+            width: 100%; padding: 16px; border-radius: 16px; border: none;
+            background: var(--accent-gradient); color: white;
+            font-weight: 700; font-size: 16px; margin-top: 20px;
+            box-shadow: 0 8px 20px rgba(55, 114, 255, 0.3);
+        }
+
+        /* CREDIT CARD DESIGN */
+        .m10-card {
+            width: 100%; height: 200px;
+            background: linear-gradient(135deg, #1e2433 0%, #000 100%);
+            border-radius: 20px; padding: 25px;
+            position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        .m10-card::before {
+            content: ''; position: absolute; top: -50%; right: -20%;
+            width: 200px; height: 200px; background: var(--accent);
+            filter: blur(80px); opacity: 0.2;
+        }
+
+        /* BOTTOM NAV */
+        .nav-bar {
+            position: fixed; bottom: 0; width: 100%;
+            background: rgba(13, 17, 28, 0.95);
+            backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around;
+            padding: 15px 0 env(safe-area-inset-bottom);
+            border-top: 1px solid var(--border);
+        }
+        .nav-item { color: var(--text-dim); text-align: center; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .nav-item.active { color: var(--accent); transform: translateY(-2px); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
-    <div class="header" id="header-title">Market</div>
 
-    <div id="page-market" class="page active">
-        <div class="card">
-            <h3 class="card-title"><i class="fas fa-plus-circle"></i> Yeni Sifariş</h3>
-            <div class="form-group">
-                <label>Kategoriya</label>
-                <select class="input-box">
-                    <option>Kateqoriyalar yüklənir...</option>
+    <div class="top-bar">
+        <div class="logo-text">SMM MASTER</div>
+        <div class="balance-chip">
+            <i class="fas fa-wallet" style="color: #32d74b;"></i>
+            <span id="header-balance">0.00 AZN</span>
+        </div>
+    </div>
+
+    <div class="category-scroll" id="prog-list">
+        <div class="prog-card active" onclick="selectProg(this, 'Instagram')">
+            <i class="fab fa-instagram" style="color: #E1306C;"></i>
+            <span>Insta</span>
+        </div>
+        <div class="prog-card" onclick="selectProg(this, 'TikTok')">
+            <i class="fab fa-tiktok" style="color: #fff;"></i>
+            <span>TikTok</span>
+        </div>
+        <div class="prog-card" onclick="selectProg(this, 'YouTube')">
+            <i class="fab fa-youtube" style="color: #FF0000;"></i>
+            <span>YouTube</span>
+        </div>
+        <div class="prog-card" onclick="selectProg(this, 'Telegram')">
+            <i class="fab fa-telegram" style="color: #248bca;"></i>
+            <span>TG</span>
+        </div>
+    </div>
+
+    <div id="market" class="page active">
+        <div class="glass-input-card">
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-dim); font-size: 13px;">Xidmət Seçin</label>
+                <select id="service-select">
+                    <option>Xidmətlər yüklənir...</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Xidmət</label>
-                <select class="input-box">
-                    <option>Xidmət seçin...</option>
-                </select>
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-dim); font-size: 13px;">Hədəf Linki</label>
+                <input type="text" placeholder="https://instagram.com/profile">
             </div>
-            <div class="form-group">
-                <label>Hədəf Linki</label>
-                <input type="text" class="input-box" placeholder="https://...">
+            <div style="margin-bottom: 15px;">
+                <label style="color: var(--text-dim); font-size: 13px;">Miqdar</label>
+                <input type="number" placeholder="Min: 100 - Max: 100k">
             </div>
-            <div style="display: flex; gap: 10px;">
-                <div class="form-group" style="flex: 1;">
-                    <label>Miqdar</label>
-                    <input type="number" class="input-box" placeholder="Məs: 1000">
-                </div>
-                <div class="form-group" style="flex: 1;">
-                    <label>Qiymət</label>
-                    <input type="text" class="input-box" value="0.00 AZN" disabled style="color: var(--primary); font-weight: 600;">
-                </div>
-            </div>
-            <button class="btn" style="margin-top: 8px;">Sifarişi Yarat</button>
+            <button class="btn-main">SİFARİŞİ TAMAMLA</button>
         </div>
     </div>
 
-    <div id="page-orders" class="page">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span style="font-weight: 600;">Sifariş #1024</span>
-                <span style="color: var(--success); font-weight: 600; font-size: 13px;">Tamamlandı</span>
+    <div id="wallet" class="page">
+        <div class="m10-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:700; opacity:0.8;">M10 TRANSFER</span>
+                <i class="fas fa-microchip" style="font-size:30px; color:#ffd700;"></i>
             </div>
-            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">Instagram İzləyici - Max 50K</div>
-            <div style="font-size: 13px;">Miqdar: 1000 • Məbləğ: 1.20 AZN</div>
-        </div>
-    </div>
-
-    <div id="page-balance" class="page">
-        <div class="card" style="text-align: center; padding: 30px 16px;">
-            <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 8px;">Mövcud Balans</div>
-            <div style="font-size: 36px; font-weight: 700; color: var(--primary);">0.00 <span style="font-size: 20px;">AZN</span></div>
-        </div>
-        <div class="card">
-            <h3 class="card-title"><i class="fas fa-wallet"></i> Balansı Artır</h3>
-            <div class="form-group">
-                <label>Ödəniş üçün M10/Kart nömrəsi:</label>
-                <div style="background: #2c2c2e; padding: 14px; border-radius: 10px; text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px;">
-                    4127 0000 0000 0000
+            <div style="margin-top:30px; font-size:20px; letter-spacing:3px; font-family:monospace;">4127 0000 0000 0000</div>
+            <div style="margin-top:20px; display:flex; justify-content:space-between;">
+                <div>
+                    <small style="display:block; opacity:0.5; font-size:10px;">BALANS</small>
+                    <span>0.00 AZN</span>
+                </div>
+                <div style="text-align:right;">
+                    <small style="display:block; opacity:0.5; font-size:10px;">SAHİB</small>
+                    <span>SMM MASTER USER</span>
                 </div>
             </div>
-            <button class="btn">Çeki Bota Göndər</button>
+        </div>
+        
+        <div class="glass-input-card" style="text-align:center;">
+            <p style="font-size:14px; color:var(--text-dim);">Ödəniş etdikdən sonra çeki yükləyin</p>
+            <button class="btn-main" style="background:#1e2433; border: 1px dashed var(--accent);">
+                <i class="fas fa-upload"></i> QƏBZİ YÜKLƏ
+            </button>
         </div>
     </div>
 
-    <div id="page-chat" class="page">
-        <div class="card">
-            <div class="chat-container" id="chat-box">
-                <div class="bubble system">
-                    <b style="font-size: 12px; opacity: 0.7; display: block; margin-bottom: 4px;">Sistem Admin</b>
-                    Xoş gəldiniz! Sualınızı və ya probleminizi bura yaza bilərsiniz.
+    <div id="profile" class="page">
+        <div class="glass-input-card">
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="width:80px; height:80px; background:var(--accent-gradient); border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:30px;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3>İstifadəçi Adı</h3>
+                <p style="color:var(--text-dim);">ID: 554210</p>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="prog-card">
+                    <b style="font-size:18px;">12</b>
+                    <span style="font-size:11px;">Sifarişlər</span>
+                </div>
+                <div class="prog-card">
+                    <b style="font-size:18px;">0.00</b>
+                    <span style="font-size:11px;">Xərclənən</span>
                 </div>
             </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" class="input-box" placeholder="Mesaj yazın...">
-                <button class="btn" style="width: auto; padding: 0 20px;" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
-            </div>
+            <button class="btn-main" style="background:rgba(255,59,48,0.1); color:#ff3b30; box-shadow:none;">ÇIXIŞ ET</button>
         </div>
     </div>
 
-    <div class="tab-bar">
-        <div class="tab-item active" onclick="switchTab('market', 'Market', this)">
-            <i class="fas fa-store"></i><span>Market</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('orders', 'Sifarişlərim', this)">
-            <i class="fas fa-list-ul"></i><span>Sifarişlər</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('balance', 'Balans', this)">
-            <i class="fas fa-wallet"></i><span>Balans</span>
-        </div>
-        <div class="tab-item" onclick="switchTab('chat', 'Söhbət', this)">
-            <i class="fas fa-comments"></i><span>Söhbət</span>
-        </div>
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="tab('market', this)"><i class="fas fa-shopping-cart"></i><span>Market</span></div>
+        <div class="nav-item" onclick="tab('wallet', this)"><i class="fas fa-wallet"></i><span>Balans</span></div>
+        <div class="nav-item" onclick="tab('profile', this)"><i class="fas fa-user-circle"></i><span>Profil</span></div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        
-        function switchTab(tabId, title, element) {
-            // Səhifələri gizlət və aktiv olanı göstər
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById('page-' + tabId).classList.add('active');
-            
-            // Menyu ikonlarını yenilə
-            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
-            element.classList.add('active');
-            
-            // Yuxarı başlığı dəyiş
-            document.getElementById('header-title').innerText = title;
-            window.scrollTo(0, 0);
+
+        function tab(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            window.scrollTo(0,0);
         }
 
-        function sendMsg() {
-            let input = document.getElementById('chat-input');
-            let text = input.value.trim();
-            if(!text) return;
-            
-            let box = document.getElementById('chat-box');
-            box.innerHTML += `<div class="bubble me">${text}</div>`;
-            input.value = "";
-            box.scrollTop = box.scrollHeight;
+        function selectProg(el, name) {
+            document.querySelectorAll('.prog-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            // Burada API-dən həmin proqramın xidmətlərini çəkəcəksən
+            console.log(name + " seçildi");
         }
     </script>
 </body>
-                                                                                                                  </html>
+    </html>
