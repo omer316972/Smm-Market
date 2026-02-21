@@ -4,221 +4,179 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --bg: #0e1621; --card: #17212b; --blue: #248bca; --green: #31d84d; --gray: #8393a3; }
-        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
-        .header { background: var(--card); padding: 15px; text-align: center; border-bottom: 1px solid #2b3948; position: sticky; top: 0; z-index: 100; }
-        .page { display: none; padding: 15px; }
-        .active { display: block; }
-        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #2b3948; }
-        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--blue); color: white; font-weight: bold; cursor: pointer; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #2b3948; background: #242f3d; color: white; box-sizing: border-box; }
-        #chat-box { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { background: #242f3d; padding: 10px; border-radius: 12px; max-width: 85%; }
-        .msg b { color: var(--blue); font-size: 12px; display: block; }
-        .msg.my-msg { align-self: flex-end; background: var(--blue); }
-        .navbar { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #2b3948; }
-        .nav-item { color: var(--gray); text-align: center; font-size: 11px; cursor: pointer; }
-        .nav-item.active { color: var(--blue); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
+        :root {
+            --bg: #000000;
+            --card-bg: #1c1c1e;
+            --text: #ffffff;
+            --text-muted: #8e8e93;
+            --primary: #0a84ff;
+            --success: #32d74b;
+            --border: #38383a;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { margin: 0; padding: 0; background-color: var(--bg); color: var(--text); padding-bottom: 85px; -webkit-font-smoothing: antialiased; }
+        
+        /* Üst Başlıq */
+        .header { position: sticky; top: 0; background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 16px; text-align: center; border-bottom: 1px solid var(--border); z-index: 100; font-weight: 600; font-size: 17px; }
+        
+        /* Səhifələr */
+        .page { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Kartlar */
+        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .card-title { font-size: 15px; font-weight: 600; margin: 0 0 12px 0; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        
+        /* Form, İnput və Düymələr */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+        .input-box { width: 100%; background: #2c2c2e; border: 1px solid transparent; border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; transition: 0.2s; }
+        .input-box:focus { border-color: var(--primary); }
+        select.input-box { appearance: none; }
+        
+        .btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:active { opacity: 0.7; transform: scale(0.98); }
+        
+        /* Alt Menyu */
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28, 28, 30, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .tab-item { flex: 1; padding: 10px 0; text-align: center; color: var(--text-muted); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.2s; }
+        .tab-item i { font-size: 20px; }
+        .tab-item span { font-size: 11px; font-weight: 500; }
+        .tab-item.active { color: var(--primary); }
+        
+        /* Çat Sistemi */
+        .chat-container { height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+        .bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
+        .bubble.system { background: #2c2c2e; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .bubble.me { background: var(--primary); align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-input-area { display: flex; gap: 8px; }
     </style>
-    </head>
-    <body>
-<div class="header"><h3 id="title" style="margin:0;">🚀 SMM MARKET</h3></div>
-<div class="container">
-    <div id="market-page" class="page active">
-        <div class="card">
-            <b>Instagram Follower</b> <span style="float:right; color:var(--green)">1.20 AZN</span>
-            <input type="text" id="link1" placeholder="Link daxil edin...">
-            <button class="btn" onclick="order('Insta', 'link1')">Sifariş Et</button>
-        </div>
-        <div class="card">
-            <b>TikTok Views</b> <span style="float:right; color:var(--green)">0.10 AZN</span>
-            <input type="text" id="link2" placeholder="Video linki...">
-            <button class="btn" onclick="order('TikTok', 'link2')">Sifariş Et</button>
-        </div>
-    </div>
-    <div id="balance-page" class="page">
-        <div class="card" style="text-align:center; background:linear-gradient(45deg, #1d2a39, #248bca);">
-            <small>Cari Balans</small><h1>0.00 AZN</h1>
-        </div>
-        <div class="card">
-            <p>M10: 4127 0000 0000 0000</p>
-            <button class="btn" onclick="tg.close()">Çek Göndər</button>
-        </div>
-    </div>
-    <div id="chat-page" class="page">
-        <div id="chat-box" class="card">
-            <div class="msg"><b>Admin</b> Xoş gəldiniz! Söyüş qadağandır.</div>
-        </div>
-        <div style="display:flex; gap:5px; margin-top:5px;">
-            <input type="text" id="msg-input" placeholder="Yazın...">
-            <button class="btn" style="width:70px;" onclick="sendChat()">At</button>
-        </div>
-    </div>
-        </div>
-        <div class="navbar">
-    <div class="nav-item active" onclick="nav(this, 'market-page', '🚀 SMM MARKET')"><i class="fa fa-shopping-bag"></i>Market</div>
-    <div class="nav-item" onclick="nav(this, 'balance-page', '💳 BALANS')"><i class="fa fa-wallet"></i>Balans</div>
-    <div class="nav-item" onclick="nav(this, 'chat-page', '💬 SÖHBƏT')"><i class="fa fa-comments"></i>Söhbət</div>
-</div>
-<script>
-    let tg = window.Telegram.WebApp;
-    tg.expand();
-    function nav(el, p, t) {
-        document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-        document.getElementById(p).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('title').innerText = t;
-    }
-    function sendChat() {
-        let i = document.getElementById('msg-input');
-        if(!i.value) return;
-        document.getElementById('chat-box').innerHTML += `<div class="msg my-msg"><b>Mən</b> ${i.value}</div>`;
-        i.value = "";
-        let b = document.getElementById('chat-box');
-        b.scrollTop = b.scrollHeight;
-    }
-    function order(s, id) {
-        let l = document.getElementById(id).value;
-        if(!l) { tg.showAlert("Link daxil edin!"); return; }
-        tg.sendData(JSON.stringify({service: s, link: l}));
-    }
-</script>
-</body>
-</html>
+</head>
 <body>
-<div class="header">
-    <h2 id="page-title">🌟 SMM PREMIUM</h2>
-</div>
+    <div class="header" id="header-title">Market</div>
 
-<div class="container">
-    <div id="market-page" class="page active">
-        <div class="glass-card">
-            <h3 style="margin-top:0; color:var(--neon-blue);"><i class="fa fa-fire"></i> Yeni Sifariş</h3>
-            
-            <label style="font-size: 12px; color:#aaa;">Kategoriya (PanelBaku)</label>
-            <select class="input-glass" id="category">
-                <option>⏳ Kateqoriyalar yüklənir...</option>
-            </select>
-
-            <label style="font-size: 12px; color:#aaa;">Xidmət (PanelBaku)</label>
-            <select class="input-glass" id="service">
-                <option>⏳ Xidmətlər yüklənir...</option>
-            </select>
-
-            <label style="font-size: 12px; color:#aaa;">Hədəf Linki</label>
-            <input type="text" id="link" class="input-glass" placeholder="https://instagram.com/...">
-
+    <div id="page-market" class="page active">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-plus-circle"></i> Yeni Sifariş</h3>
+            <div class="form-group">
+                <label>Kategoriya</label>
+                <select class="input-box">
+                    <option>Kateqoriyalar yüklənir...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Xidmət</label>
+                <select class="input-box">
+                    <option>Xidmət seçin...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Hədəf Linki</label>
+                <input type="text" class="input-box" placeholder="https://...">
+            </div>
             <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; color:#aaa;">Miqdar</label>
-                    <input type="number" id="quantity" class="input-glass" placeholder="1000">
+                <div class="form-group" style="flex: 1;">
+                    <label>Miqdar</label>
+                    <input type="number" class="input-box" placeholder="Məs: 1000">
                 </div>
-                <div style="flex: 1;">
-                    <label style="font-size: 12px; color:#aaa;">Qiymət</label>
-                    <input type="text" class="input-glass" value="0.00 AZN" disabled style="color:var(--neon-blue); font-weight:bold; background:rgba(0,242,254,0.05);">
+                <div class="form-group" style="flex: 1;">
+                    <label>Qiymət</label>
+                    <input type="text" class="input-box" value="0.00 AZN" disabled style="color: var(--primary); font-weight: 600;">
                 </div>
             </div>
-
-            <button class="btn-wow" style="margin-top: 15px;" onclick="tg.showAlert('Sifariş API-yə göndəriləcək!')">Sifarişi Təsdiqlə</button>
+            <button class="btn" style="margin-top: 8px;">Sifarişi Yarat</button>
         </div>
     </div>
 
-    <div id="orders-page" class="page">
-        <div class="glass-card" style="border-left: 4px solid var(--neon-purple);">
-            <div style="display:flex; justify-content:space-between;">
-                <b>ID: #1024</b> <span style="color:#00e676;">Tamamlandı</span>
+    <div id="page-orders" class="page">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 600;">Sifariş #1024</span>
+                <span style="color: var(--success); font-weight: 600; font-size: 13px;">Tamamlandı</span>
             </div>
-            <p style="font-size:13px; color:#bbb; margin:5px 0;">Instagram Follower [Max 50K]</p>
-            <small style="color:var(--neon-blue);">Miqdar: 1000 | Məbləğ: 1.20 AZN</small>
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 8px;">Instagram İzləyici - Max 50K</div>
+            <div style="font-size: 13px;">Miqdar: 1000 • Məbləğ: 1.20 AZN</div>
         </div>
     </div>
 
-    <div id="balance-page" class="page">
-        <div class="glass-card" style="text-align:center; background: linear-gradient(135deg, rgba(0,242,254,0.1), rgba(79,172,254,0.1));">
-            <h4 style="color:#aaa; margin:0;">Mövcud Balans</h4>
-            <h1 style="font-size: 40px; margin: 10px 0; color:var(--neon-blue);">0.00 <span style="font-size:20px;">AZN</span></h1>
+    <div id="page-balance" class="page">
+        <div class="card" style="text-align: center; padding: 30px 16px;">
+            <div style="color: var(--text-muted); font-size: 14px; margin-bottom: 8px;">Mövcud Balans</div>
+            <div style="font-size: 36px; font-weight: 700; color: var(--primary);">0.00 <span style="font-size: 20px;">AZN</span></div>
         </div>
-        <div class="glass-card">
-            <h4 style="margin-top:0;"><i class="fa fa-credit-card"></i> Balans Artır</h4>
-            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px dashed var(--neon-blue); text-align:center;">
-                <p style="margin:0; color:#aaa; font-size:14px;">M10 Hesabı:</p>
-                <h3 style="margin:5px 0; letter-spacing: 2px;">4127 0000 0000 0000</h3>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-wallet"></i> Balansı Artır</h3>
+            <div class="form-group">
+                <label>Ödəniş üçün M10/Kart nömrəsi:</label>
+                <div style="background: #2c2c2e; padding: 14px; border-radius: 10px; text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px;">
+                    4127 0000 0000 0000
+                </div>
             </div>
-            <button class="btn-wow" style="margin-top: 15px;" onclick="tg.close()">Ödəniş Çekini At</button>
+            <button class="btn">Çeki Bota Göndər</button>
         </div>
     </div>
-    <div id="chat-page" class="page">
-        <div class="glass-card" id="chat-box" style="height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding:10px;">
-            <div style="background:rgba(255,255,255,0.1); padding:10px 15px; border-radius:15px; align-self:flex-start; max-width:80%;">
-                <b style="color:var(--neon-blue); font-size:12px;">Sistem</b><br>
-                SMM icmamıza xoş gəldiniz! 🚀
+
+    <div id="page-chat" class="page">
+        <div class="card">
+            <div class="chat-container" id="chat-box">
+                <div class="bubble system">
+                    <b style="font-size: 12px; opacity: 0.7; display: block; margin-bottom: 4px;">Sistem Admin</b>
+                    Xoş gəldiniz! Sualınızı və ya probleminizi bura yaza bilərsiniz.
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" class="input-box" placeholder="Mesaj yazın...">
+                <button class="btn" style="width: auto; padding: 0 20px;" onclick="sendMsg()"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <input type="text" id="msg-input" class="input-glass" placeholder="Mesajınızı yazın..." style="margin:0;">
-            <button class="btn-wow" style="width:60px; padding:0; border-radius:12px;" onclick="sendChat()"><i class="fa fa-paper-plane"></i></button>
+    </div>
+
+    <div class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('market', 'Market', this)">
+            <i class="fas fa-store"></i><span>Market</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('orders', 'Sifarişlərim', this)">
+            <i class="fas fa-list-ul"></i><span>Sifarişlər</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('balance', 'Balans', this)">
+            <i class="fas fa-wallet"></i><span>Balans</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('chat', 'Söhbət', this)">
+            <i class="fas fa-comments"></i><span>Söhbət</span>
         </div>
     </div>
-</div>
 
-<style>
-    .bottom-nav {
-        position: fixed; bottom: 15px; left: 15px; right: 15px;
-        background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border); border-radius: 20px;
-        display: flex; justify-content: space-around; padding: 10px 0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000;
-    }
-    .nav-btn {
-        color: #777; text-align: center; cursor: pointer; transition: 0.3s; flex: 1;
-    }
-    .nav-btn i { font-size: 22px; margin-bottom: 5px; display: block; transition: 0.3s; }
-    .nav-btn span { font-size: 10px; font-weight: 600; text-transform: uppercase; }
-    .nav-btn.active { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); transform: translateY(-3px); }
-</style>
-
-<div class="bottom-nav">
-    <div class="nav-btn active" onclick="changePage(this, 'market-page', '🌟 YENİ SİFARİŞ')"><i class="fa fa-rocket"></i><span>Market</span></div>
-    <div class="nav-btn" onclick="changePage(this, 'orders-page', '📦 SİFARİŞLƏRİM')"><i class="fa fa-list-alt"></i><span>Sifariş</span></div>
-    <div class="nav-btn" onclick="changePage(this, 'balance-page', '💳 BALANS')"><i class="fa fa-wallet"></i><span>Balans</span></div>
-    <div class="nav-btn" onclick="changePage(this, 'chat-page', '💬 SÖHBƏT')"><i class="fa fa-comments"></i><span>Söhbət</span></div>
-</div>
-
-<script>
-    let tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.setHeaderColor('#0b0f19'); // Telegram yuxarı hissəsini qara edir
-
-    function changePage(element, pageId, title) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
         
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        element.classList.add('active');
-        
-        document.getElementById('page-title').innerText = title;
-        window.scrollTo(0, 0);
-    }
+        function switchTab(tabId, title, element) {
+            // Səhifələri gizlət və aktiv olanı göstər
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('page-' + tabId).classList.add('active');
+            
+            // Menyu ikonlarını yenilə
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            
+            // Yuxarı başlığı dəyiş
+            document.getElementById('header-title').innerText = title;
+            window.scrollTo(0, 0);
+        }
 
-    function sendChat() {
-        let input = document.getElementById('msg-input');
-        if(!input.value) return;
-        
-        let box = document.getElementById('chat-box');
-        let myMsg = `
-            <div style="background:linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); color:white; padding:10px 15px; border-radius:15px; align-self:flex-end; max-width:80%; box-shadow: 0 4px 10px rgba(0,242,254,0.3); animation: fadeIn 0.3s;">
-                <b style="font-size:12px; color:rgba(255,255,255,0.8);">Mən</b><br>
-                ${input.value}
-            </div>`;
-        
-        box.innerHTML += myMsg;
-        input.value = "";
-        box.scrollTop = box.scrollHeight;
-    }
-</script>
+        function sendMsg() {
+            let input = document.getElementById('chat-input');
+            let text = input.value.trim();
+            if(!text) return;
+            
+            let box = document.getElementById('chat-box');
+            box.innerHTML += `<div class="bubble me">${text}</div>`;
+            input.value = "";
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
 </body>
-            </html>
+                                                                                                                  </html>
