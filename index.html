@@ -6,188 +6,86 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --bg-color: #0e1621;
-            --card-bg: #17212b;
-            --accent-color: #248bca;
-            --text-gray: #8393a3;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: white;
-            margin: 0;
-            padding: 0;
-            padding-bottom: 70px; /* Menyu üçün boşluq */
-        }
-
-        /* Üst başlıq */
-        .header {
-            padding: 15px;
-            background: var(--card-bg);
-            text-align: center;
-            border-bottom: 1px solid #2b3948;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .container { padding: 15px; }
-
-        /* Bölmələr (İlkin olaraq balans gizli olur) */
-        .page { display: none; }
+        :root { --bg: #0e1621; --card: #17212b; --blue: #248bca; --green: #31d84d; --gray: #8393a3; }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
+        .header { background: var(--card); padding: 15px; text-align: center; border-bottom: 1px solid #2b3948; position: sticky; top: 0; z-index: 100; }
+        .page { display: none; padding: 15px; }
         .active { display: block; }
-
-        /* Kartlar */
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #2b3948;
-        }
-
-        /* Alt Menyu */
-        .navbar {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #17212b;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid #2b3948;
-            z-index: 1000;
-        }
-
-        .nav-item {
-            color: var(--text-gray);
-            text-align: center;
-            font-size: 12px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .nav-item.active-nav { color: var(--accent-color); }
-
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
-
-        /* Düymələr */
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: none;
-            background: var(--accent-color);
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #2b3948;
-            background: #242f3d;
-            color: white;
-            box-sizing: border-box;
-        }
+        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #2b3948; }
+        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; background: var(--blue); color: white; font-weight: bold; cursor: pointer; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #2b3948; background: #242f3d; color: white; box-sizing: border-box; }
+        #chat-box { height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #242f3d; padding: 10px; border-radius: 12px; max-width: 85%; }
+        .msg b { color: var(--blue); font-size: 12px; display: block; }
+        .msg.my-msg { align-self: flex-end; background: var(--blue); }
+        .navbar { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #2b3948; }
+        .nav-item { color: var(--gray); text-align: center; font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--blue); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
     </style>
-</head>
-<body>
-
-    <div class="header">
-        <h3 id="page-title" style="margin:0;">🚀 SMM MARKET</h3>
-    </div>
-
-    <div class="container">
-        
-        <div id="market" class="page active">
-            <div class="card">
-                <div style="display:flex; justify-content: space-between;">
-                    <span>👥 İnstagram Follower</span>
-                    <span style="color:#31d84d">1.20 AZN</span>
-                </div>
-                <input type="text" id="link1" placeholder="Link daxil edin...">
-                <button class="btn" onclick="order('Follower', 'link1')">SİFARİŞ ET</button>
-            </div>
-            <div class="card">
-                <div style="display:flex; justify-content: space-between;">
-                    <span>❤️ İnstagram Like</span>
-                    <span style="color:#31d84d">0.50 AZN</span>
-                </div>
-                <input type="text" id="link2" placeholder="Link daxil edin...">
-                <button class="btn" onclick="order('Like', 'link2')">SİFARİŞ ET</button>
-            </div>
+    </head>
+    <body>
+<div class="header"><h3 id="title" style="margin:0;">🚀 SMM MARKET</h3></div>
+<div class="container">
+    <div id="market-page" class="page active">
+        <div class="card">
+            <b>Instagram Follower</b> <span style="float:right; color:var(--green)">1.20 AZN</span>
+            <input type="text" id="link1" placeholder="Link daxil edin...">
+            <button class="btn" onclick="order('Insta', 'link1')">Sifariş Et</button>
         </div>
-
-        <div id="balance" class="page">
-            <div class="card" style="background: linear-gradient(45deg, #1d2a39, #248bca);">
-                <small>Mövcud Balansınız:</small>
-                <h2 style="margin: 5px 0;">0.00 AZN</h2>
-            </div>
-            <div class="card">
-                <h4>💳 Kart Məlumatı</h4>
-                <p style="letter-spacing: 1px; background: #0e1621; padding: 10px; border-radius: 5px; text-align: center;">4127 0000 0000 0000</p>
-                <p style="font-size: 12px; color: var(--text-gray);">Ödəniş etdikdən sonra çeki bota göndərin.</p>
-                <button class="btn" style="background: #31d84d;" onclick="tg.close()">Çek Göndər</button>
-            </div>
-        </div>
-
-        <div id="profile" class="page">
-            <div class="card">
-                <h4>İstifadəçi: <span id="user-name">Qonaq</span></h4>
-                <p>ID: <span id="user-id">---</span></p>
-                <button class="btn" style="background: #e74c3c;" onclick="tg.close()">Çıxış</button>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="navbar">
-        <div class="nav-item active-nav" onclick="showPage('market', this, '🚀 SMM MARKET')">
-            <i class="fas fa-shopping-cart"></i>Market
-        </div>
-        <div class="nav-item" onclick="showPage('balance', this, '💳 BALANS ARTIR')">
-            <i class="fas fa-wallet"></i>Balans
-        </div>
-        <div class="nav-item" onclick="showPage('profile', this, '👤 PROFİLİM')">
-            <i class="fas fa-user"></i>Profil
+        <div class="card">
+            <b>TikTok Views</b> <span style="float:right; color:var(--green)">0.10 AZN</span>
+            <input type="text" id="link2" placeholder="Video linki...">
+            <button class="btn" onclick="order('TikTok', 'link2')">Sifariş Et</button>
         </div>
     </div>
-
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-
-        // İstifadəçi məlumatlarını Telegram-dan alırıq
-        if(tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-            document.getElementById('user-id').innerText = tg.initDataUnsafe.user.id;
-        }
-
-        function showPage(pageId, element, title) {
-            // Bütün səhifələri gizlə
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // Seçilən səhifəni göstər
-            document.getElementById(pageId).classList.add('active');
-            
-            // Menyu rənglərini dəyiş
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
-            element.classList.add('active-nav');
-
-            // Başlığı dəyiş
-            document.getElementById('page-title').innerText = title;
-        }
-
-        function order(service, inputId) {
-            let link = document.getElementById(inputId).value;
-            if(!link) { tg.showAlert("Linki daxil edin!"); return; }
-            tg.sendData(JSON.stringify({action: "order", service: service, link: link}));
-        }
-    </script>
+    <div id="balance-page" class="page">
+        <div class="card" style="text-align:center; background:linear-gradient(45deg, #1d2a39, #248bca);">
+            <small>Cari Balans</small><h1>0.00 AZN</h1>
+        </div>
+        <div class="card">
+            <p>M10: 4127 0000 0000 0000</p>
+            <button class="btn" onclick="tg.close()">Çek Göndər</button>
+        </div>
+    </div>
+    <div id="chat-page" class="page">
+        <div id="chat-box" class="card">
+            <div class="msg"><b>Admin</b> Xoş gəldiniz! Söyüş qadağandır.</div>
+        </div>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+            <input type="text" id="msg-input" placeholder="Yazın...">
+            <button class="btn" style="width:70px;" onclick="sendChat()">At</button>
+        </div>
+    </div>
+        </div>
+        <div class="navbar">
+    <div class="nav-item active" onclick="nav(this, 'market-page', '🚀 SMM MARKET')"><i class="fa fa-shopping-bag"></i>Market</div>
+    <div class="nav-item" onclick="nav(this, 'balance-page', '💳 BALANS')"><i class="fa fa-wallet"></i>Balans</div>
+    <div class="nav-item" onclick="nav(this, 'chat-page', '💬 SÖHBƏT')"><i class="fa fa-comments"></i>Söhbət</div>
+</div>
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+    function nav(el, p, t) {
+        document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+        document.getElementById(p).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('title').innerText = t;
+    }
+    function sendChat() {
+        let i = document.getElementById('msg-input');
+        if(!i.value) return;
+        document.getElementById('chat-box').innerHTML += `<div class="msg my-msg"><b>Mən</b> ${i.value}</div>`;
+        i.value = "";
+        let b = document.getElementById('chat-box');
+        b.scrollTop = b.scrollHeight;
+    }
+    function order(s, id) {
+        let l = document.getElementById(id).value;
+        if(!l) { tg.showAlert("Link daxil edin!"); return; }
+        tg.sendData(JSON.stringify({service: s, link: l}));
+    }
+</script>
 </body>
-                    </html>
+</html>
