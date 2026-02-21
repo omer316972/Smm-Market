@@ -89,3 +89,136 @@
 </script>
 </body>
 </html>
+<body>
+<div class="header">
+    <h2 id="page-title">🌟 SMM PREMIUM</h2>
+</div>
+
+<div class="container">
+    <div id="market-page" class="page active">
+        <div class="glass-card">
+            <h3 style="margin-top:0; color:var(--neon-blue);"><i class="fa fa-fire"></i> Yeni Sifariş</h3>
+            
+            <label style="font-size: 12px; color:#aaa;">Kategoriya (PanelBaku)</label>
+            <select class="input-glass" id="category">
+                <option>⏳ Kateqoriyalar yüklənir...</option>
+            </select>
+
+            <label style="font-size: 12px; color:#aaa;">Xidmət (PanelBaku)</label>
+            <select class="input-glass" id="service">
+                <option>⏳ Xidmətlər yüklənir...</option>
+            </select>
+
+            <label style="font-size: 12px; color:#aaa;">Hədəf Linki</label>
+            <input type="text" id="link" class="input-glass" placeholder="https://instagram.com/...">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color:#aaa;">Miqdar</label>
+                    <input type="number" id="quantity" class="input-glass" placeholder="1000">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color:#aaa;">Qiymət</label>
+                    <input type="text" class="input-glass" value="0.00 AZN" disabled style="color:var(--neon-blue); font-weight:bold; background:rgba(0,242,254,0.05);">
+                </div>
+            </div>
+
+            <button class="btn-wow" style="margin-top: 15px;" onclick="tg.showAlert('Sifariş API-yə göndəriləcək!')">Sifarişi Təsdiqlə</button>
+        </div>
+    </div>
+
+    <div id="orders-page" class="page">
+        <div class="glass-card" style="border-left: 4px solid var(--neon-purple);">
+            <div style="display:flex; justify-content:space-between;">
+                <b>ID: #1024</b> <span style="color:#00e676;">Tamamlandı</span>
+            </div>
+            <p style="font-size:13px; color:#bbb; margin:5px 0;">Instagram Follower [Max 50K]</p>
+            <small style="color:var(--neon-blue);">Miqdar: 1000 | Məbləğ: 1.20 AZN</small>
+        </div>
+    </div>
+
+    <div id="balance-page" class="page">
+        <div class="glass-card" style="text-align:center; background: linear-gradient(135deg, rgba(0,242,254,0.1), rgba(79,172,254,0.1));">
+            <h4 style="color:#aaa; margin:0;">Mövcud Balans</h4>
+            <h1 style="font-size: 40px; margin: 10px 0; color:var(--neon-blue);">0.00 <span style="font-size:20px;">AZN</span></h1>
+        </div>
+        <div class="glass-card">
+            <h4 style="margin-top:0;"><i class="fa fa-credit-card"></i> Balans Artır</h4>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; border: 1px dashed var(--neon-blue); text-align:center;">
+                <p style="margin:0; color:#aaa; font-size:14px;">M10 Hesabı:</p>
+                <h3 style="margin:5px 0; letter-spacing: 2px;">4127 0000 0000 0000</h3>
+            </div>
+            <button class="btn-wow" style="margin-top: 15px;" onclick="tg.close()">Ödəniş Çekini At</button>
+        </div>
+    </div>
+    <div id="chat-page" class="page">
+        <div class="glass-card" id="chat-box" style="height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding:10px;">
+            <div style="background:rgba(255,255,255,0.1); padding:10px 15px; border-radius:15px; align-self:flex-start; max-width:80%;">
+                <b style="color:var(--neon-blue); font-size:12px;">Sistem</b><br>
+                SMM icmamıza xoş gəldiniz! 🚀
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <input type="text" id="msg-input" class="input-glass" placeholder="Mesajınızı yazın..." style="margin:0;">
+            <button class="btn-wow" style="width:60px; padding:0; border-radius:12px;" onclick="sendChat()"><i class="fa fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bottom-nav {
+        position: fixed; bottom: 15px; left: 15px; right: 15px;
+        background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border); border-radius: 20px;
+        display: flex; justify-content: space-around; padding: 10px 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000;
+    }
+    .nav-btn {
+        color: #777; text-align: center; cursor: pointer; transition: 0.3s; flex: 1;
+    }
+    .nav-btn i { font-size: 22px; margin-bottom: 5px; display: block; transition: 0.3s; }
+    .nav-btn span { font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .nav-btn.active { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); transform: translateY(-3px); }
+</style>
+
+<div class="bottom-nav">
+    <div class="nav-btn active" onclick="changePage(this, 'market-page', '🌟 YENİ SİFARİŞ')"><i class="fa fa-rocket"></i><span>Market</span></div>
+    <div class="nav-btn" onclick="changePage(this, 'orders-page', '📦 SİFARİŞLƏRİM')"><i class="fa fa-list-alt"></i><span>Sifariş</span></div>
+    <div class="nav-btn" onclick="changePage(this, 'balance-page', '💳 BALANS')"><i class="fa fa-wallet"></i><span>Balans</span></div>
+    <div class="nav-btn" onclick="changePage(this, 'chat-page', '💬 SÖHBƏT')"><i class="fa fa-comments"></i><span>Söhbət</span></div>
+</div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.setHeaderColor('#0b0f19'); // Telegram yuxarı hissəsini qara edir
+
+    function changePage(element, pageId, title) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        element.classList.add('active');
+        
+        document.getElementById('page-title').innerText = title;
+        window.scrollTo(0, 0);
+    }
+
+    function sendChat() {
+        let input = document.getElementById('msg-input');
+        if(!input.value) return;
+        
+        let box = document.getElementById('chat-box');
+        let myMsg = `
+            <div style="background:linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); color:white; padding:10px 15px; border-radius:15px; align-self:flex-end; max-width:80%; box-shadow: 0 4px 10px rgba(0,242,254,0.3); animation: fadeIn 0.3s;">
+                <b style="font-size:12px; color:rgba(255,255,255,0.8);">Mən</b><br>
+                ${input.value}
+            </div>`;
+        
+        box.innerHTML += myMsg;
+        input.value = "";
+        box.scrollTop = box.scrollHeight;
+    }
+</script>
+</body>
+            </html>
