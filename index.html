@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMM Pro Veb</title>
+    <title>SMM AZERBAIJAN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body {
             margin: 0; padding: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: #090a0f; color: white;
+            background: #000; color: white;
             height: 100vh; overflow: hidden;
         }
 
-        /* Arxa plan ulduzları */
-        .stars {
-            position: fixed; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png');
-            z-index: -1;
+        /* 3D Arxa Plan */
+        #canvas-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
         }
 
         /* Raket Girişi */
@@ -26,63 +25,70 @@
             background: #000; z-index: 1000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
-        .rocket { font-size: 60px; animation: flyUp 2.5s ease-in-out forwards; }
-        @keyframes flyUp {
-            0% { transform: translateY(100vh); opacity: 0; }
-            50% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100vh); opacity: 0; }
+        .rocket { font-size: 80px; position: absolute; bottom: -100px; filter: drop-shadow(0 0 20px #ffaa00); }
+        
+        .fly-animation {
+            animation: rocketFly 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        /* Üst Bar */
+        @keyframes rocketFly {
+            0% { bottom: -150px; transform: translateX(0) rotate(0deg) scale(0.5); opacity: 1; }
+            40% { bottom: 50%; transform: translateX(20px) rotate(-10deg) scale(1.2); }
+            100% { bottom: 120vh; transform: translateX(-50px) rotate(-20deg) scale(0.3); opacity: 0; }
+        }
+
+        .intro-text {
+            color: #00d2ff; font-weight: bold; font-size: 20px;
+            text-transform: uppercase; letter-spacing: 2px;
+            opacity: 0; animation: fadeInOut 2s 0.5s forwards;
+        }
+        @keyframes fadeInOut { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        /* Üst Bar & Şüşə menyular (Dizaynı qoruyuruq) */
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
+            padding: 15px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .user-box { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .user-box img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00d2ff; }
-
-        /* Kart Dizaynı */
+        .user-box img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #00d2ff; }
+        
         .abb-card {
             width: 280px; height: 160px;
             background: linear-gradient(135deg, #005aab, #002d56);
-            border-radius: 15px; padding: 20px;
-            margin: 20px auto; position: relative;
-            box-shadow: 0 10px 30px rgba(0,210,255,0.3);
+            border-radius: 15px; padding: 20px; margin: 20px auto;
+            box-shadow: 0 0 25px rgba(0, 90, 171, 0.5);
         }
 
-        /* Şüşə Menyular */
         .glass-nav {
             position: fixed; bottom: 20px; left: 5%; width: 90%;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            border-radius: 20px; display: flex; justify-content: space-around; padding: 12px 0;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 0;
+            border: 1px solid rgba(255,255,255,0.2);
         }
-        .nav-item { opacity: 0.6; font-size: 12px; text-align: center; cursor: pointer; }
-        .nav-item.active { opacity: 1; color: #00d2ff; font-weight: bold; }
+        .nav-item { opacity: 0.5; font-size: 11px; text-align: center; }
+        .nav-item.active { opacity: 1; color: #00d2ff; }
 
+        .content-area { padding: 20px; text-align: center; height: 75vh; overflow-y: auto; }
         .hidden { display: none; }
-        .content-area { padding: 20px; text-align: center; height: 70vh; overflow-y: auto; }
-        
-        button.upload-btn {
-            background: #00d2ff; color: black; border: none;
-            padding: 12px 25px; border-radius: 10px; font-weight: bold; margin-top: 15px;
-        }
     </style>
 </head>
 <body>
 
+    <audio id="rocket-sound" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3"></audio>
+
     <div id="intro-screen">
-        <div class="rocket">🚀</div>
-        <div style="color: #00d2ff; margin-top: 20px;">Azərbaycanın Ən Güclü SMM Botu</div>
+        <div id="rocket" class="rocket">🚀</div>
+        <div class="intro-text">AZƏRBAYCANIN ƏN GÜCLÜ SMM BOTU</div>
     </div>
 
-    <div class="stars"></div>
+    <div id="canvas-container"></div>
 
     <div class="top-bar">
-        <div style="font-weight: bold; color: #00d2ff;">PANELBAKU PRO</div>
+        <div style="font-weight: bold; letter-spacing: 1px;">SMM AZERBAIJAN</div>
         <div class="user-box">
-            <div style="text-align: right;">
-                <div id="u_name">Yüklənir...</div>
-                <div id="u_bal" style="color: #4ade80; font-weight: bold;">0.00 ₼</div>
+            <div style="text-align: right; margin-right: 8px;">
+                <div id="u_name" style="font-size: 12px;">Yüklənir...</div>
+                <div id="u_bal" style="color: #4ade80; font-weight: bold; font-size: 14px;">0.00 ₼</div>
             </div>
             <img id="u_pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
         </div>
@@ -90,24 +96,24 @@
 
     <div class="content-area">
         <div id="tab-xidmet">
-            <h2>📦 Xidmətlər</h2>
-            <p style="opacity: 0.7;">PanelBaku xidmətləri tezliklə bura bağlanacaq...</p>
+            <h2 style="margin-top: 40px;">📦 Xidmətlər Menyusu</h2>
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; backdrop-filter: blur(5px);">
+                Kategoriyalar yüklənir...
+            </div>
         </div>
 
         <div id="tab-balans" class="hidden">
             <h3>💳 Balans Artır</h3>
-            <div class="abb-card">
-                <div style="text-align: left; font-size: 12px; opacity: 0.8;">ABB BANK</div>
-                <div style="margin-top: 35px; font-size: 18px; letter-spacing: 2px;">4127 0000 0000 0000</div>
+            <div class="LeoBank-card">
+                <div style="text-align: left; font-size: 12px;">LEO BANK</div>
+                <div style="margin-top: 35px; font-size: 18px; letter-spacing: 2px;">5411 2498 1332 8171</div>
                 <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px;">
-                    <span>SƏNİN ADIN</span>
-                    <span>12/28</span>
+                    <span> Ömər </span>
+                    <span>00/00</span>
                 </div>
             </div>
-            <p style="font-size: 13px; padding: 0 10px;">Ödəniş edin və qəbzin şəklini bura yükləyin:</p>
-            <input type="file" id="file-input" class="hidden" accept="image/*" onchange="fileSelected()">
-            <button class="upload-btn" onclick="document.getElementById('file-input').click()">📸 Qəbz Yüklə</button>
-            <div id="status" style="margin-top: 10px; color: #4ade80;"></div>
+            <button onclick="document.getElementById('file-in').click()" style="background: #00d2ff; color: black; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold;">📸 Qəbz At</button>
+            <input type="file" id="file-in" class="hidden" accept="image/*">
         </div>
     </div>
 
@@ -121,30 +127,78 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // İstifadəçi məlumatları
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('u_name').innerText = tg.initDataUnsafe.user.first_name;
-            if(tg.initDataUnsafe.user.photo_url) document.getElementById('u_pic').src = tg.initDataUnsafe.user.photo_url;
+        // 3D PLANETLƏR SİSTEMİ
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Planet Yaradılması
+        const geometry = new THREE.SphereGeometry(1.5, 32, 32);
+        const material = new THREE.MeshPhongMaterial({ 
+            color: 0x2233ff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.3 
+        });
+        const planet = new THREE.Mesh(geometry, material);
+        scene.add(planet);
+
+        // İşıqlandırma
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        camera.position.z = 5;
+
+        // Ulduzlar
+        const starGeometry = new THREE.BufferGeometry();
+        const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
+        const starVertices = [];
+        for(let i=0; i<5000; i++) {
+            starVertices.push((Math.random()-0.5)*2000, (Math.random()-0.5)*2000, (Math.random()-0.5)*2000);
         }
+        starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
 
-        // Giriş ekranını silmək
-        setTimeout(() => { document.getElementById('intro-screen').remove(); }, 3000);
+        function animate() {
+            requestAnimationFrame(animate);
+            planet.rotation.y += 0.005;
+            planet.rotation.x += 0.002;
+            stars.rotation.y += 0.0002;
+            renderer.render(scene, camera);
+        }
+        animate();
 
-        // Tab keçidləri
-        function showTab(tabId, el) {
+        // RAKET ANIMASIYASI VƏ SƏS
+        window.onload = () => {
+            const rock = document.getElementById('rocket');
+            const snd = document.getElementById('rocket-sound');
+            
+            setTimeout(() => {
+                rock.classList.add('fly-animation');
+                snd.play().catch(e => console.log("Səs üçün ekrana toxunulmalıdır"));
+            }, 500);
+
+            setTimeout(() => {
+                document.getElementById('intro-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('intro-screen').remove(), 1000);
+            }, 3000);
+        };
+
+        // Tab Funksiyası
+        function showTab(t, el) {
             document.getElementById('tab-xidmet').classList.add('hidden');
             document.getElementById('tab-balans').classList.add('hidden');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-'+t).classList.remove('hidden');
             el.classList.add('active');
         }
 
-        function fileSelected() {
-            const status = document.getElementById('status');
-            status.innerText = "Qəbz seçildi! Təsdiq üçün göndərilir...";
-            // Burada Telegram-a məlumat göndərmə kodu olacaq
-            tg.sendData("qebz_atildi"); 
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('u_name').innerText = tg.initDataUnsafe.user.first_name;
+            if(tg.initDataUnsafe.user.photo_url) document.getElementById('u_pic').src = tg.initDataUnsafe.user.photo_url;
         }
     </script>
 </body>
