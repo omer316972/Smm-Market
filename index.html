@@ -1,216 +1,221 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<title>SmmPro PRO</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>SMM PRO</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --accent-color: #00d2ff;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
 
-<style>
-body{
-margin:0;
-font-family:Segoe UI;
-overflow:hidden;
-color:white;
-background:black;
-}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* GLASS */
-.glass{
-background:rgba(255,255,255,0.07);
-backdrop-filter:blur(14px);
-border:1px solid rgba(255,255,255,0.2);
-border-radius:18px;
-box-shadow:0 0 30px rgba(0,0,0,.6);
-}
+        /* INTRO & ROCKET */
+        #intro {
+            position: fixed; inset: 0; background: #000; z-index: 1000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease;
+        }
+        .rocket-img { width: 80px; animation: fly 3s ease-in-out forwards; }
+        @keyframes fly {
+            0% { transform: translateY(200px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-500px); opacity: 0; }
+        }
 
-/* HEADER */
-header{
-position:fixed;
-top:0;
-width:100%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px 40px;
-z-index:5;
-}
+        /* HEADER */
+        header {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #1a1a1a;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+        }
+        .logo { font-size: 20px; font-weight: 800; letter-spacing: 4px; color: var(--accent-color); }
 
-/* LOGO */
-.logo{
-font-size:28px;
-font-weight:bold;
-background:linear-gradient(90deg,#00f,#0ff,#0f0,#ff0,#f0f);
--webkit-background-clip:text;
-color:transparent;
-animation:move 5s linear infinite;
-}
-@keyframes move{
-0%{background-position:0%}
-100%{background-position:400%}
-}
+        /* ÜST: PROQRAMLAR */
+        .category-bar {
+            display: flex; overflow-x: auto; padding: 15px; gap: 20px;
+            background: #050505; border-bottom: 1px solid #111;
+            scrollbar-width: none;
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+        .cat-item {
+            min-width: 60px; text-align: center; opacity: 0.4; transition: 0.3s;
+        }
+        .cat-item.active { opacity: 1; color: var(--accent-color); transform: scale(1.1); }
+        .cat-item img { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 5px; }
+        .cat-item span { font-size: 10px; font-weight: bold; display: block; }
 
-/* PROFILE TOP */
-.topProfile{
-display:flex;
-gap:15px;
-padding:10px 20px;
-align-items:center;
-}
+        /* ORTA: MARKET */
+        #market {
+            flex: 1; overflow-y: auto; padding: 15px;
+            background: radial-gradient(circle at top, #0a0a0a, #000);
+        }
+        .service-card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px; padding: 15px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .service-info h4 { margin: 0; font-size: 14px; }
+        .service-info p { margin: 5px 0 0; color: #00ff88; font-weight: bold; }
+        .buy-btn {
+            background: var(--accent-color); color: #000; border: none;
+            padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 11px;
+        }
 
-/* CENTER PANEL */
-.centerBox{
-position:absolute;
-bottom:40px;
-left:50%;
-transform:translateX(-50%);
-padding:25px 40px;
-text-align:center;
-}
-
-/* BUTTON */
-.btn{
-margin-top:15px;
-padding:12px;
-cursor:pointer;
-transition:.3s;
-}
-.btn:hover{ transform:scale(1.05); }
-
-/* POPUP */
-.popup{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%) scale(0);
-padding:25px;
-width:320px;
-text-align:center;
-transition:.4s;
-z-index:6;
-}
-.popup.active{
-transform:translate(-50%,-50%) scale(1);
-}
-
-/* CARD */
-.card{
-height:190px;
-border-radius:20px;
-padding:20px;
-background:linear-gradient(135deg,#00c6ff,#0072ff);
-text-align:left;
-position:relative;
-}
-.card span{display:block;margin-top:14px}
-
-/* PROFILE BTN */
-#profileBtn{
-position:fixed;
-right:25px;
-bottom:25px;
-padding:15px;
-cursor:pointer;
-z-index:6;
-}
-canvas{position:fixed;top:0;left:0;z-index:-1;}
-</style>
+        /* ALT: TARİXÇƏ */
+        #history {
+            height: 160px; background: #050505; border-top: 1px solid #1a1a1a;
+            padding: 15px; overflow-y: auto;
+        }
+        .history-title { font-size: 11px; color: #444; text-transform: uppercase; margin-bottom: 10px; }
+        .history-item {
+            display: flex; justify-content: space-between; padding: 8px 0;
+            border-bottom: 1px solid #0f0f0f; font-size: 11px;
+        }
+    </style>
 </head>
-<body>
+<body onclick="initAudio()">
 
-<header>
-<div class="logo">SmmPro</div>
+    <audio id="sfx-rocket" src="https://www.soundjay.com/transportation/sounds/airplane-fly-by-01.mp3"></audio>
+    <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"></audio>
 
-<div class="topProfile glass">
-<img src="https://i.pravatar.cc/40" style="border-radius:50%">
-<div>
-<div>@user</div>
-<div>Balans: 25.40₼</div>
-</div>
-</div>
-</header>
+    <div id="intro">
+        <img src="https://cdn-icons-png.flaticon.com/png/512/3132/premium/3132693.png" class="rocket-img">
+        <h2 style="color: #00d2ff; letter-spacing: 3px; margin-top: 20px;">SMM PRO</h2>
+    </div>
 
-<div class="centerBox glass">
-<h2>Kateqoriyalar</h2>
-<div class="btn glass" onclick="toggleCats()">Aç</div>
+    <header>
+        <div class="logo">SMM PRO</div>
+    </header>
 
-<div id="cats" style="display:none;margin-top:15px">
-<div>Instagram</div>
-<div>TikTok</div>
-<div>YouTube</div>
-</div>
+    <div class="category-bar">
+        <div class="cat-item active" onclick="filter('Instagram', this)">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png"><span>Instagram</span>
+        </div>
+        <div class="cat-item" onclick="filter('Tiktok', this)">
+            <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png"><span>TikTok</span>
+        </div>
+        <div class="cat-item" onclick="filter('Telegram', this)">
+            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png"><span>Telegram</span>
+        </div>
+        <div class="cat-item" onclick="filter('Youtube', this)">
+            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png"><span>YouTube</span>
+        </div>
+    </div>
 
-<div class="btn glass" onclick="openCard()">Balans artır</div>
-</div>
+    <main id="market"></main>
 
-<div class="popup glass" id="cardBox">
-<div class="card">
-<b>SmmPro</b>
-<span>5469 2211 9988 4433</span>
-<span>Ad Soyad</span>
-<span>Balans: 25.40₼</span>
-</div>
-<div class="btn glass">Çek yüklə</div>
-</div>
+    <footer id="history">
+        <div class="history-title">🕒 Son Əməliyyatlarınız</div>
+        <div id="hist-list">
+            <p style="opacity:0.2; font-size:10px;">Heç bir məlumat tapılmadı.</p>
+        </div>
+    </footer>
 
-<div id="profileBtn" class="glass" onclick="openProfile()">Profil</div>
+    <script>
+        let tg = window.Telegram.WebApp;
+        let services = [];
+        tg.expand();
+        tg.ready();
 
-<div class="popup glass" id="profileBox">
-<div class="card">
-<b>SmmPro</b>
-<span>@user</span>
-<span>Balans: 25.40₼</span>
-</div>
-</div>
+        let audioStarted = false;
+        function initAudio() {
+            if(!audioStarted) {
+                document.getElementById('sfx-rocket').play().catch(()=>{});
+                setTimeout(() => {
+                    let bg = document.getElementById('bg-music');
+                    bg.volume = 0.3;
+                    bg.play().catch(()=>{});
+                }, 1500);
+                audioStarted = true;
+            }
+        }
 
-<script>
-/* THREE JS PLANET */
-let scene=new THREE.Scene();
-let camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
-let renderer=new THREE.WebGLRenderer({alpha:true});
-renderer.setSize(innerWidth,innerHeight);
-document.body.appendChild(renderer.domElement);
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            const dataStr = params.get('data');
+            
+            if(dataStr) {
+                const data = JSON.parse(decodeURIComponent(dataStr));
+                services = data.services;
+                renderHistory(data.history);
+                filter('Instagram');
+            }
 
-let geometry=new THREE.SphereGeometry(2,64,64);
-let texture=new THREE.TextureLoader().load("https://threejsfundamentals.org/threejs/resources/images/earth-day.jpg");
-let material=new THREE.MeshStandardMaterial({map:texture});
-let planet=new THREE.Mesh(geometry,material);
-scene.add(planet);
+            setTimeout(() => {
+                const intro = document.getElementById('intro');
+                intro.style.opacity = '0';
+                setTimeout(() => intro.remove(), 800);
+            }, 3000);
+        };
 
-let light=new THREE.PointLight(0xffffff,1.2);
-light.position.set(5,3,5);
-scene.add(light);
+        function filter(cat, el) {
+            if(el) {
+                document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
+            }
+            const container = document.getElementById('market');
+            container.innerHTML = "";
+            
+            const filtered = services.filter(s => s.cat === cat);
+            if(filtered.length === 0) {
+                container.innerHTML = "<p style='text-align:center; opacity:0.3; margin-top:40px;'>Xidmət yoxdur.</p>";
+                return;
+            }
 
-camera.position.z=5;
+            filtered.forEach(s => {
+                container.innerHTML += `
+                    <div class="service-card">
+                        <div class="service-info">
+                            <h4>${s.name}</h4>
+                            <p>${s.rate} AZN</p>
+                        </div>
+                        <button class="buy-btn" onclick="order('${s.id}')">SİFARİŞ</button>
+                    </div>`;
+            });
+        }
 
-function animate(){
-requestAnimationFrame(animate);
-planet.rotation.y+=0.002;
-renderer.render(scene,camera);
-}
-animate();
+        function renderHistory(h) {
+            const list = document.getElementById('hist-list');
+            if(h && h.length > 0) {
+                list.innerHTML = "";
+                h.forEach(item => {
+                    list.innerHTML += `<div class="history-item"><span>${item.act}</span><span style="opacity:0.3">${item.dt}</span></div>`;
+                });
+            }
+        }
 
-window.onresize=()=>{
-camera.aspect=innerWidth/innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(innerWidth,innerHeight);
-}
+        function order(id) {
+            tg.showConfirm("Sifariş təsdiqlənsin?", (ok) => {
+                if(ok) {
+                    tg.sendData("order_" + id);
+                    tg.close();
+                }
+            });
+        }
 
-/* UI */
-function toggleCats(){
-let c=document.getElementById("cats");
-c.style.display=c.style.display=="block"?"none":"block";
-}
-function openCard(){
-document.getElementById("cardBox").classList.toggle("active");
-}
-function openProfile(){
-document.getElementById("profileBox").classList.toggle("active");
-}
-document.onclick=e=>{
-if(!e.target.closest(".btn")&&!e.target.closest("#profileBtn"))
-document.querySelectorAll(".popup").forEach(p=>p.classList.remove("active"));
-}
-</script>
-
+        // Mövzu dəyişəndə Telegram rənglərinə uyğunlaşma
+        tg.onEvent('themeChanged', () => {
+            document.body.style.setProperty('--bg-color', tg.backgroundColor);
+        });
+    </script>
 </body>
 </html>
