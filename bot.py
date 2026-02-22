@@ -7,13 +7,13 @@ import json
 from flask import Flask
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
-from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 
 # --- MƏLUMATLARI DAXİL ET ---
 TOKEN = "8401084300:AAHIClVs7pTgCQJaI7A42BTQLQT32GQfAU8"
-ADMIN_ID = 8566739483  # @userinfobot-dan aldigin ID
+ADMIN_ID = 8566739483 
 WEB_APP_URL = "https://omer316972.github.io/Smm-Market/"
-PANEL_BAKU_API_KEY = "5c5a238037ce23ff5baa4a43142fa338"
+PANEL_BAKU_API_KEY = "AAHIClVs7pTgCQJaI7A42BTQLQT32GQfAU8"
 PANEL_API_URL = "https://panelbaku.com/api/v2"
 
 bot = Bot(token=TOKEN)
@@ -41,12 +41,13 @@ def update_balance(user_id, amount):
     conn.close()
 
 # --- PANELBAKU API ---
-def get_panel_services():
+def get_live_services():
     try:
         params = {'key': PANEL_BAKU_API_KEY, 'action': 'services'}
-        response = requests.get(PANEL_API_URL, params=params)
-        if response.status_code == 200:
-            return response.json()
+        r = requests.get(PANEL_API_URL, params=params)
+        if r.status_code == 200:
+            data = r.json()
+            return data[:10] # İlk 10 xidməti göndəririk (URL çox uzun olmasın deyə)
         return []
     except:
         return []
@@ -54,46 +55,44 @@ def get_panel_services():
 # --- BOT ---
 @dp.message(CommandStart())
 async def start(message: types.Message):
-    uid = message.from_user.id
-    update_balance(uid, 0)
-    bal = get_balance(uid)
+    user_id = message.from_user.id
+    update_balance(user_id, 0)
+    bal = get_balance(user_id)
+    services = get_live_services()
     
-    # API-den xidmetleri cekirik
-    services = get_panel_services()
-    
-    # WebApp URL-e balansi ve qisaca xidmetleri gonderirik
-    # Qeyd: URL cox uzun olmasin deye sadece balansi gonderirik, xidmetleri sayt oz daxilinde API ile de ceke biler.
-    final_url = f"{WEB_APP_URL}?balance={bal}"
+    # Məlumatları URL-ə sıxırıq
+    services_json = json.dumps(services)
+    final_url = f"{WEB_APP_URL}?balance={bal}&services={services_json}"
 
     markup = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🚀 Market (Profil & Balans)", web_app=WebAppInfo(url=final_url))],
-        [InlineKeyboardButton(text="📢 Kanal", url="https://t.me/example"),
-         InlineKeyboardButton(text="👨‍💻 Destek", url="https://t.me/example")]
+        [InlineKeyboardButton(text="🚀 Marketə Giriş", web_app=WebAppInfo(url=final_url))],
+        [InlineKeyboardButton(text="📢 Kanal", url="https://t.me/kanal"),
+         InlineKeyboardButton(text="👨‍💻 Dəstək", url="https://t.me/profil")]
     ])
     
     await message.answer_photo(
         photo="https://img.freepik.com/free-vector/gradient-social-media-marketing-concept_23-2149021820.jpg",
-        caption=f"<b>Salam, {message.from_user.first_name}! 👋</b>\n\n💰 Balansın: <b>{bal:.2f} AZN</b>\n\nMarketə daxil olaraq xidmətləri görə və balansını artıra bilərsən.",
+        caption=f"<b>Salam, {message.from_user.first_name}! 👋</b>\n💰 Balansın: <b>{bal:.2f} AZN</b>",
         parse_mode="HTML",
         reply_markup=markup
     )
 
 @dp.message(F.content_type == types.ContentType.WEB_APP_DATA)
-async def web_app_received(message: types.Message):
-    if message.web_app_data.data == "qebz_atildi":
-        await message.answer("📸 <b>Qəbz sistemi aktivdir!</b>\n\nZəhmət olmasa ödəniş qəbzinin şəklini bura göndərin.")
+async def handle_data(message: types.Message):
+    data = message.web_app_data.data
+    if data == "qebz_atildi":
+        await message.answer("📸 Zəhmət olmasa qəbz şəklini bura göndər.")
+    elif data.startswith("order_"):
+        await message.answer(f"📦 Sifariş qəbul edildi! ID: {data.split('_')[1]}\nLinki göndərin.")
 
 @dp.message(F.photo)
 async def handle_photo(message: types.Message):
     markup = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="✅ 1 AZN", callback_data=f"pay_{message.from_user.id}_1"),
-         InlineKeyboardButton(text="✅ 5 AZN", callback_data=f"pay_{message.from_user.id}_5"),
-         InlineKeyboardButton(text="✅ 10 AZN", callback_data=f"pay_{message.from_user.id}_10")],
-        [InlineKeyboardButton(text="❌ Imtina", callback_data=f"refuse_{message.from_user.id}")]
+         InlineKeyboardButton(text="✅ 5 AZN", callback_data=f"pay_{message.from_user.id}_5")],
+        [InlineKeyboardButton(text="❌ Rədd et", callback_data=f"ref_{message.from_user.id}")]
     ])
-    await bot.send_photo(ADMIN_ID, photo=message.photo[-1].file_id, 
-                         caption=f"🔔 Yeni qəbz!\nİstifadəçi: {message.from_user.first_name}\nID: {message.from_user.id}", 
-                         reply_markup=markup)
+    await bot.send_photo(ADMIN_ID, photo=message.photo[-1].file_id, caption="Yeni qəbz!", reply_markup=markup)
     await message.answer("✅ Qəbz adminə göndərildi.")
 
 @dp.callback_query(F.data.startswith("pay_"))
@@ -101,16 +100,14 @@ async def approve(call: types.CallbackQuery):
     _, uid, amt = call.data.split("_")
     update_balance(int(uid), float(amt))
     await bot.send_message(int(uid), f"✅ Balansınız {amt} AZN artırıldı!")
-    await call.message.edit_caption(caption=f"✅ {uid} üçün {amt} AZN təsdiqləndi.")
+    await call.message.edit_caption(caption="✅ Təsdiqləndi.")
 
-# --- RENDER/FLASK ---
+# --- SERVER ---
 @app.route('/')
-def home(): return "Bot is live!"
+def home(): return "Bot Live"
 
 def run_flask():
-    import os
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
 
 async def main():
     init_db()
