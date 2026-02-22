@@ -1,54 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="az">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mənim Veb Botum</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin:0; background:#000; color:#fff; font-family:sans-serif; overflow:hidden; }
-        #market { display:none; padding:20px; height:100vh; overflow-y:auto; }
-        .item { background:#111; padding:15px; margin-bottom:10px; border-radius:10px; border:1px solid #00ffcc; }
-        button { background:#00ffcc; color:#000; border:none; padding:10px; width:100%; border-radius:5px; font-weight:bold; }
-        #intro { position:fixed; width:100%; height:100%; z-index:100; display:flex; justify-content:center; align-items:center; }
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-button-color: #248bed;
+            --tg-theme-button-text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+            background: rgba(135, 206, 235, 0.1); /* Şüşə effekti */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        p { font-size: 16px; opacity: 0.8; }
+
+        .btn-main {
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-main:active {
+            transform: scale(0.95);
+        }
+
+        .user-card {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
-    <div id="intro"></div>
-    <div id="market">
-        <h3>Balans: <span id="bal">0</span> AZN</h3>
-        <div id="list"></div>
+
+    <div class="container">
+        <h1>Xoş Gəldiniz! 🚀</h1>
+        <p>Bu, sizin GitHub-da host olunan müasir botunuzun veb interfeysidir.</p>
+        
+        <div id="user-info" class="user-card">
+            Məlumatlar yüklənir...
+        </div>
+
+        <button class="btn-main" onclick="sendMessage()">Salam Göndər</button>
+        <button class="btn-main" style="background: #e74c3c; margin-top: 10px;" onclick="closeApp()">Bağla</button>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        const api = "CLOUDFLARED_LINKIN_BURA"; // Termuxdan aldığın link
-        const uid = tg.initDataUnsafe.user.id;
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Tətbiqi tam ekran açır
 
-        // 3D Planet
-        const scene = new THREE.Scene();
-        const cam = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('intro').appendChild(renderer.domElement);
-        const globe = new THREE.Mesh(new THREE.SphereGeometry(2, 32, 32), new THREE.MeshBasicMaterial({color:0x00ffcc, wireframe:true}));
-        scene.add(globe); cam.position.z = 5;
-        function anim() { requestAnimationFrame(anim); globe.rotation.y += 0.01; renderer.render(scene, cam); }
-        anim();
+        // İstifadəçi məlumatlarını Telegram-dan çəkirik
+        let userCard = document.getElementById("user-info");
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userCard.innerHTML = `Salam, <b>${tg.initDataUnsafe.user.first_name}</b>! <br> (ID: ${tg.initDataUnsafe.user.id})`;
+        } else {
+            userCard.innerHTML = "İstifadəçi tapılmadı (Brauzer testi).";
+        }
 
-        // 4 saniyə sonra aç
-        setTimeout(async () => {
-            document.getElementById('intro').style.display = 'none';
-            document.getElementById('market').style.display = 'block';
-            
-            const u = await fetch(`${api}/api/user/${uid}`).then(r => r.json());
-            document.getElementById('bal').innerText = u.balance.toFixed(2);
+        function sendMessage() {
+            tg.sendData("Səhifədən mesaj gəldi!"); // Bota məlumat göndərir
+        }
 
-            const srvs = await fetch(`${api}/api/services`).then(r => r.json());
-            let h = '';
-            srvs.slice(0, 20).forEach(s => {
-                h += `<div class="item"><b>${s.name}</b><br>1k: ${s.rate} AZN<button>Sifariş</button></div>`;
-            });
-            document.getElementById('list').innerHTML = h;
-        }, 4000);
+        function closeApp() {
+            tg.close();
+        }
     </script>
 </body>
 </html>
