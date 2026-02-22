@@ -2,110 +2,123 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMM PRO - Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMM AZERBAIJAN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { font-family: 'Montserrat', sans-serif; background: #0a0a1a; color: #e0e0e0; margin: 0; padding: 15px; text-align: center; }
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-        h1, h2, h3 { color: #df20ff; }
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000; color: white; height: 100vh; overflow: hidden; }
         
-        .balance-card { 
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%); 
-            padding: 25px; 
-            border-radius: 20px; 
-            margin-bottom: 30px; 
-            border: 2px solid #df20ff; 
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
+        /* 3D Arxa Plan */
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        /* Raket Girişi */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s ease;
         }
-        .balance-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(223, 32, 255, 0.1) 0%, transparent 70%);
-            animation: rotate 15s linear infinite;
+        .rocket { font-size: 80px; position: absolute; bottom: -100px; filter: drop-shadow(0 0 20px #ffaa00); }
+        .fly-animation { animation: rocketFly 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        @keyframes rocketFly {
+            0% { bottom: -150px; transform: translateX(0) rotate(0deg) scale(0.5); opacity: 1; }
+            40% { bottom: 50%; transform: translateX(20px) rotate(-10deg) scale(1.2); }
+            100% { bottom: 120vh; transform: translateX(-50px) rotate(-20deg) scale(0.3); opacity: 0; }
         }
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        .intro-text { color: #00d2ff; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 2px; opacity: 0; animation: fadeInOut 2s 0.5s forwards; }
+        @keyframes fadeInOut { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+        /* Üst Bar */
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .user-box { display: flex; align-items: center; gap: 8px; }
+        .user-box img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #00d2ff; }
+
+        /* LeoBank Kartı */
+        .leo-card {
+            width: 280px; height: 160px;
+            background: linear-gradient(135deg, #1d1d1d, #333);
+            border-radius: 15px; padding: 20px; margin: 20px auto;
+            position: relative; box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .balance-card h3 { margin-bottom: 15px; font-size: 1.5em; color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
-        .balance-card #user-balance { font-size: 2.5em; font-weight: 700; color: #00ff00; text-shadow: 0 0 15px rgba(0, 255, 0, 0.5); }
-        
-        .upload-btn-wrapper { margin-top: 20px; }
-        .upload-btn { 
-            display: inline-block; 
-            background: linear-gradient(90deg, #df20ff, #8a2be2); 
-            color: white; 
-            padding: 12px 25px; 
-            border-radius: 30px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            font-size: 1.1em;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(223, 32, 255, 0.4);
-        }
-        .upload-btn:hover { background: linear-gradient(90deg, #8a2be2, #df20ff); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(223, 32, 255, 0.6); }
-        input[type="file"] { display: none; }
+        /* Xidmətlər Siyahısı */
+        .content-area { padding: 20px; text-align: center; height: 70vh; overflow-y: auto; padding-bottom: 100px; }
+        .service-container { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; backdrop-filter: blur(10px); margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: left; display: flex; justify-content: space-between; align-items: center;}
+        .hidden { display: none; }
 
-        .welcome-text { margin-top: 30px; font-size: 1.1em; line-height: 1.6; color: #c0c0c0; }
-        .welcome-text p strong { color: #df20ff; }
-        
-        .service-section { margin-top: 40px; }
-        .service-list { display: flex; flex-direction: column; gap: 12px; }
-        .service-item { 
-            background: #16162e; 
-            padding: 18px; 
-            border-radius: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border: 1px solid #3a3a5a; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        /* Alt Menyu */
+        .glass-nav {
+            position: fixed; bottom: 20px; left: 5%; width: 90%;
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 0;
+            border: 1px solid rgba(255,255,255,0.2); z-index: 100;
         }
-        .service-item strong { color: #ffffff; font-size: 1.2em; }
-        .service-item small { color: #a0a0a0; font-size: 0.9em; }
-        .buy-btn { 
-            background: linear-gradient(90deg, #00c6ff, #0072ff); 
-            color: white; 
-            border: none; 
-            padding: 10px 20px; 
-            border-radius: 25px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            transition: all 0.3s ease;
-        }
-        .buy-btn:hover { background: linear-gradient(90deg, #0072ff, #00c6ff); transform: scale(1.05); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); }
+        .nav-item { opacity: 0.5; font-size: 11px; text-align: center; cursor: pointer; color: white; transition: 0.3s; }
+        .nav-item.active { opacity: 1; color: #00d2ff; transform: scale(1.1); }
+
+        .btn-buy { background: #00d2ff; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="balance-card">
-            <h3>Cari Balansınız:</h3>
-            <span id="user-balance">0.00</span> <span style="font-size: 1.5em; color: #e0e0e0;">AZN</span>
-            <div class="upload-btn-wrapper">
-                <label for="fi" class="upload-btn">➕ Balans Artır</label>
-                <input type="file" id="fi" accept="image/*">
+
+    <audio id="rocket-sound" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3"></audio>
+    
+    <div id="intro-screen">
+        <div id="rocket" class="rocket">🚀</div>
+        <div class="intro-text">SMM PRO AZERBAIJAN</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="top-bar">
+        <div style="font-weight: bold; letter-spacing: 1px; color: #00d2ff;">SMM PRO</div>
+        <div class="user-box">
+            <div style="text-align: right; margin-right: 8px;">
+                <div id="u_name" style="font-size: 12px;">...</div>
+                <div id="u_bal" style="color: #4ade80; font-weight: bold; font-size: 14px;">0.00 ₼</div>
+            </div>
+            <img id="u_pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div id="tab-xidmet">
+            <h2 style="font-size: 18px;">📦 Xidmətlər Menyusu</h2>
+            <div id="services-list">
+                <p style="opacity: 0.5;">Xidmətlər yüklənir...</p>
             </div>
         </div>
 
-        <div class="welcome-text">
-            <p><strong>SMM PRO</strong>-ya xoş gəlmisən! Bizimlə siz sosial media xidmətlərini asanlıqla əldə edə bilərsiniz.</p>
-            <p>Güvənli və sürətli xidmət üçün bizə etibar edin.</p>
-        </div>
-
-        <div class="service-section">
-            <h2>🔥 Xidmətlərimiz</h2>
-            <div id="services" class="service-list">
-                <p style="color: #a0a0a0;">Xidmətlər yüklənir...</p>
+        <div id="tab-balans" class="hidden">
+            <h3 style="font-size: 18px;">💳 Balans Artır</h3>
+            <div class="leo-card">
+                <div style="text-align: left; font-size: 12px; color: #ffeb3b; font-weight: bold;">LEO BANK</div>
+                <div style="margin-top: 35px; font-size: 18px; letter-spacing: 2px; font-family: monospace;">5411 2498 1332 8171</div>
+                <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; opacity: 0.8;">
+                    <span>Ömər</span>
+                    <span>12/28</span>
+                </div>
             </div>
+            <p style="font-size: 13px; padding: 10px; opacity: 0.8;">Ödəniş edin və qəbzin şəklini bura yükləyin:</p>
+            <input type="file" id="file-in" class="hidden" accept="image/*" onchange="fileSent()">
+            <button onclick="document.getElementById('file-in').click()" style="background: #00d2ff; color: black; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,210,255,0.4);">📸 Qəbz At</button>
+            <div id="status" style="margin-top: 15px; color: #4ade80; font-size: 12px;"></div>
+        </div>
+    </div>
+
+    <div class="glass-nav">
+        <div class="nav-item active" onclick="showTab('xidmet', this)">
+            <div style="font-size: 20px;">📦</div>
+            <div>Xidmətlər</div>
+        </div>
+        <div class="nav-item" onclick="showTab('balans', this)">
+            <div style="font-size: 20px;">💳</div>
+            <div>Balans</div>
         </div>
     </div>
 
@@ -113,68 +126,97 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Saytdan botun start mesajı içərisindəki balansı oxuyub göstəririk
-        document.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const balance = params.get('balance');
-            if (balance) {
-                document.getElementById('user-balance').innerText = parseFloat(balance).toFixed(2);
-            }
-        });
+        // 3D PLANET SİSTEMİ
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // Qəbz Yükləmə Funksiyası
-        document.getElementById('fi').addEventListener('change', function() {
-            if (tg) {
-                tg.sendData("qebz_atildi");
-                tg.close();
-            }
-        });
+        const planetGeo = new THREE.SphereGeometry(1.8, 32, 32);
+        const planetMat = new THREE.MeshPhongMaterial({ color: 0x00d2ff, wireframe: true, transparent: true, opacity: 0.2 });
+        const planet = new THREE.Mesh(planetGeo, planetMat);
+        scene.add(planet);
 
-        // --- Xidmətlərin yüklənməsi (Botdan API məlumatı gələndə) ---
-        // Bu hissə botdan gələn məlumatı qəbul edəcək
-        if (tg) {
-            tg.onEvent('mainButtonClicked', () => {
-                // Bu düyməyə basanda botdan gələn məlumatı gözləyir
-            });
-            // Botdan gələn data üçün (məsələn, xidmətlər)
-            tg.onEvent('themeChanged', () => {
-                // Tema dəyişdikdə
-            });
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            planet.rotation.y += 0.003;
+            renderer.render(scene, camera);
         }
-        
-        // Bu funksiya botdan gələn xidmətləri göstərmək üçündür
-        function renderServices(services) {
-            const container = document.getElementById('services');
-            container.innerHTML = ''; // Köhnə "yüklənir" yazısını silirik
-            if (services.length === 0) {
-                container.innerHTML = "<p style='color: #a0a0a0;'>Hazırda xidmətlər mövcud deyil.</p>";
-                return;
+        animate();
+
+        // RAKET VƏ GİRİŞ
+        window.onload = () => {
+            const rock = document.getElementById('rocket');
+            const snd = document.getElementById('rocket-sound');
+            setTimeout(() => {
+                rock.classList.add('fly-animation');
+                snd.play().catch(() => {});
+            }, 500);
+            setTimeout(() => {
+                document.getElementById('intro-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('intro-screen').remove(), 1000);
+            }, 3000);
+
+            // Məlumatları URL-dən oxumaq
+            const params = new URLSearchParams(window.location.search);
+            if(params.get('balance')) document.getElementById('u_bal').innerText = params.get('balance') + " ₼";
+            
+            // İstifadəçi adı
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                document.getElementById('u_name').innerText = tg.initDataUnsafe.user.first_name;
+                if(tg.initDataUnsafe.user.photo_url) document.getElementById('u_pic').src = tg.initDataUnsafe.user.photo_url;
             }
-            services.forEach(s => {
-                container.innerHTML += `
-                    <div class="service-item">
+
+            // Xidmətləri Render etmək (Demo xidmətlər, botdan gələnlər bura düşəcək)
+            renderServices();
+        };
+
+        function showTab(t, el) {
+            document.getElementById('tab-xidmet').classList.add('hidden');
+            document.getElementById('tab-balans').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('tab-' + t).classList.remove('hidden');
+            el.classList.add('active');
+        }
+
+        function fileSent() {
+            document.getElementById('status').innerText = "Göndərilir... Zəhmət olmasa gözləyin.";
+            tg.sendData("qebz_atildi");
+            setTimeout(() => tg.close(), 1500);
+        }
+
+        function renderServices() {
+            const list = document.getElementById('services-list');
+            // Botdan gələn datanı bura bağlayacağıq. Hələlik vizual üçün:
+            const demo = [
+                {id: 1, name: "Instagram Takipçi", rate: "1.20"},
+                {id: 2, name: "TikTok Bəyəni", rate: "0.50"},
+                {id: 3, name: "Telegram Abunə", rate: "0.80"}
+            ];
+            list.innerHTML = "";
+            demo.forEach(s => {
+                list.innerHTML += `
+                    <div class="service-container">
                         <div>
-                            <strong>${s.name}</strong><br>
-                            <small>${s.rate} AZN / 1000 ədəd</small>
+                            <div style="font-weight:bold;">${s.name}</div>
+                            <div style="font-size:11px; color:#4ade80;">${s.rate} ₼ / 1000 ədəd</div>
                         </div>
-                        <button class="buy-btn" onclick="buyService('${s.service}', '${s.name}', '${s.rate}')">Sifariş Ver</button>
+                        <button class="btn-buy" onclick="order('${s.id}')">Al</button>
                     </div>
                 `;
             });
         }
 
-        // Sifariş Ver düyməsinə basanda bot-a məlumat göndərir
-        function buyService(service_id, service_name, service_rate) {
-            if (tg) {
-                tg.sendData(`order_${service_id}_${service_name.replace(/ /g, '_')}_${service_rate}`);
-                tg.close();
-            }
+        function order(id) {
+            tg.sendData("order_" + id);
+            tg.close();
         }
-
-        // Test üçün balans və servis yükləmə
-        // Botdan gələn "web_app_data" vasitəsilə bu funksiyalar çağırılacaq
-        // Məsələn, bot 'set_balance_12.50' kimi data göndərə bilər
-        // və ya 'set_services_[{"name":"Foll","rate":"1.2","service":"101"}]'
     </script>
 </body>
 </html>
