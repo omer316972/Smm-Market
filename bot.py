@@ -13,7 +13,7 @@ from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 TOKEN = "8401084300:AAHIClVs7pTgCQJaI7A42BTQLQT32GQfAU8"
 ADMIN_ID = 8566739483 
 WEB_APP_URL = "https://omer316972.github.io/Smm-Market/"
-PANEL_BAKU_API_KEY = "AAHIClVs7pTgCQJaI7A42BTQLQT32GQfAU8"
+PANEL_BAKU_API_KEY = "b5b8b170835942c21c44ae65fdec454c"
 PANEL_API_URL = "https://panelbaku.com/api/v2"
 
 bot = Bot(token=TOKEN)
