@@ -2,284 +2,214 @@
 <html lang="az">
 <head>
 <meta charset="UTF-8">
-<title>SmmPro</title>
+<title>SmmPro PRO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
 <style>
 body{
-    margin:0;
-    font-family:Segoe UI, sans-serif;
-    color:white;
-    overflow:hidden;
-    background:black;
+margin:0;
+font-family:Segoe UI;
+overflow:hidden;
+color:white;
+background:black;
 }
 
-/* BACKGROUND PLANETS */
-#space{
-    position:fixed;
-    width:100%;
-    height:100%;
-    background: radial-gradient(circle at 30% 30%, #1a2a6c, #000);
-    z-index:-2;
-    transition: background 2s;
-}
-
-/* GLASS STYLE */
+/* GLASS */
 .glass{
-    background:rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:18px;
-    box-shadow:0 0 25px rgba(0,0,0,0.5);
+background:rgba(255,255,255,0.07);
+backdrop-filter:blur(14px);
+border:1px solid rgba(255,255,255,0.2);
+border-radius:18px;
+box-shadow:0 0 30px rgba(0,0,0,.6);
 }
 
 /* HEADER */
 header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 40px;
+position:fixed;
+top:0;
+width:100%;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 40px;
+z-index:5;
 }
 
 /* LOGO */
 .logo{
-    font-size:28px;
-    font-weight:bold;
-    animation:colorShift 4s infinite linear;
+font-size:28px;
+font-weight:bold;
+background:linear-gradient(90deg,#00f,#0ff,#0f0,#ff0,#f0f);
+-webkit-background-clip:text;
+color:transparent;
+animation:move 5s linear infinite;
 }
-@keyframes colorShift{
-    0%{color:#00f0ff}
-    25%{color:#ff00d4}
-    50%{color:#00ff88}
-    75%{color:#ffaa00}
-    100%{color:#00f0ff}
-}
-
-/* PROFILE INFO */
-.profileTop{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    padding:10px 20px;
+@keyframes move{
+0%{background-position:0%}
+100%{background-position:400%}
 }
 
-/* ROCKET INTRO */
-#intro{
-    position:fixed;
-    width:100%;
-    height:100%;
-    background:black;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    z-index:10;
+/* PROFILE TOP */
+.topProfile{
+display:flex;
+gap:15px;
+padding:10px 20px;
+align-items:center;
 }
 
-.rocket{
-    font-size:60px;
-    animation:fly 2s forwards ease-in;
-}
-@keyframes fly{
-    from{transform:translateY(200px);}
-    to{transform:translateY(-400px);}
-}
-
-#introText{
-    opacity:0;
-    margin-top:20px;
-    font-size:28px;
-    animation:showText 2s 1.5s forwards;
-}
-@keyframes showText{
-    to{opacity:1;}
-}
-
-/* CATEGORIES */
-.categories{
-    position:absolute;
-    bottom:40px;
-    left:50%;
-    transform:translateX(-50%);
-    padding:20px 40px;
-    cursor:pointer;
-    transition:.3s;
-}
-.categories:hover{ transform:translateX(-50%) scale(1.05); }
-
-.catList{
-    display:none;
-    margin-top:15px;
-}
-.catList div{
-    padding:10px;
+/* CENTER PANEL */
+.centerBox{
+position:absolute;
+bottom:40px;
+left:50%;
+transform:translateX(-50%);
+padding:25px 40px;
+text-align:center;
 }
 
 /* BUTTON */
 .btn{
-    margin-top:15px;
-    padding:12px 25px;
-    cursor:pointer;
-    text-align:center;
+margin-top:15px;
+padding:12px;
+cursor:pointer;
+transition:.3s;
 }
+.btn:hover{ transform:scale(1.05); }
 
-/* CARD POPUP */
+/* POPUP */
 .popup{
-    position:fixed;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%) scale(0);
-    width:320px;
-    padding:25px;
-    text-align:center;
-    transition:.4s;
-    z-index:5;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(0);
+padding:25px;
+width:320px;
+text-align:center;
+transition:.4s;
+z-index:6;
 }
 .popup.active{
-    transform:translate(-50%,-50%) scale(1);
+transform:translate(-50%,-50%) scale(1);
 }
 
-/* CARD DESIGN */
+/* CARD */
 .card{
-    height:180px;
-    padding:20px;
-    border-radius:20px;
-    background:linear-gradient(135deg,#00c6ff,#0072ff);
-    text-align:left;
-    position:relative;
+height:190px;
+border-radius:20px;
+padding:20px;
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+text-align:left;
+position:relative;
 }
-.card span{
-    display:block;
-    margin-top:15px;
-}
+.card span{display:block;margin-top:14px}
 
-/* PROFILE BUTTON */
+/* PROFILE BTN */
 #profileBtn{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    padding:15px;
-    cursor:pointer;
+position:fixed;
+right:25px;
+bottom:25px;
+padding:15px;
+cursor:pointer;
+z-index:6;
 }
-
-/* PLANET DOT */
-.planet{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(1px);
-    opacity:.7;
-}
+canvas{position:fixed;top:0;left:0;z-index:-1;}
 </style>
 </head>
-
 <body>
-
-<div id="space"></div>
-
-<!-- INTRO -->
-<div id="intro">
-<div class="rocket">🚀</div>
-<div id="introText">Azərbaycanın ən sürətli SMM saytı</div>
-</div>
 
 <header>
 <div class="logo">SmmPro</div>
 
-<div class="profileTop glass">
+<div class="topProfile glass">
 <img src="https://i.pravatar.cc/40" style="border-radius:50%">
 <div>
 <div>@user</div>
-<div>Balans: 12.40₼</div>
+<div>Balans: 25.40₼</div>
 </div>
 </div>
 </header>
 
-<!-- CATEGORIES -->
-<div class="categories glass" onclick="toggleCats()">
-Kateqoriyalar
-<div class="catList" id="cats">
+<div class="centerBox glass">
+<h2>Kateqoriyalar</h2>
+<div class="btn glass" onclick="toggleCats()">Aç</div>
+
+<div id="cats" style="display:none;margin-top:15px">
 <div>Instagram</div>
 <div>TikTok</div>
 <div>YouTube</div>
 </div>
 
-<div class="btn glass" onclick="openCard(event)">Balans artır</div>
+<div class="btn glass" onclick="openCard()">Balans artır</div>
 </div>
 
-<!-- CARD POPUP -->
 <div class="popup glass" id="cardBox">
 <div class="card">
-<strong>SmmPro</strong>
-<span>0000 1111 2222 3333</span>
+<b>SmmPro</b>
+<span>5469 2211 9988 4433</span>
 <span>Ad Soyad</span>
-<span>Balans: 12.40₼</span>
+<span>Balans: 25.40₼</span>
+</div>
+<div class="btn glass">Çek yüklə</div>
 </div>
 
-<div class="btn glass">Qəbzi yüklə</div>
-</div>
-
-<!-- PROFILE BUTTON -->
 <div id="profileBtn" class="glass" onclick="openProfile()">Profil</div>
 
-<!-- PROFILE CARD -->
 <div class="popup glass" id="profileBox">
 <div class="card">
-<strong>SmmPro</strong>
+<b>SmmPro</b>
 <span>@user</span>
-<span>Balans: 12.40₼</span>
+<span>Balans: 25.40₼</span>
 </div>
 </div>
 
 <script>
+/* THREE JS PLANET */
+let scene=new THREE.Scene();
+let camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
+let renderer=new THREE.WebGLRenderer({alpha:true});
+renderer.setSize(innerWidth,innerHeight);
+document.body.appendChild(renderer.domElement);
 
-/* INTRO HIDE */
-setTimeout(()=>{
-document.getElementById("intro").style.display="none";
-},3500)
+let geometry=new THREE.SphereGeometry(2,64,64);
+let texture=new THREE.TextureLoader().load("https://threejsfundamentals.org/threejs/resources/images/earth-day.jpg");
+let material=new THREE.MeshStandardMaterial({map:texture});
+let planet=new THREE.Mesh(geometry,material);
+scene.add(planet);
 
-/* CATEGORY TOGGLE */
+let light=new THREE.PointLight(0xffffff,1.2);
+light.position.set(5,3,5);
+scene.add(light);
+
+camera.position.z=5;
+
+function animate(){
+requestAnimationFrame(animate);
+planet.rotation.y+=0.002;
+renderer.render(scene,camera);
+}
+animate();
+
+window.onresize=()=>{
+camera.aspect=innerWidth/innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(innerWidth,innerHeight);
+}
+
+/* UI */
 function toggleCats(){
 let c=document.getElementById("cats");
 c.style.display=c.style.display=="block"?"none":"block";
 }
-
-/* CARD OPEN */
-function openCard(e){
-e.stopPropagation();
+function openCard(){
 document.getElementById("cardBox").classList.toggle("active");
 }
-
-/* PROFILE OPEN */
 function openProfile(){
 document.getElementById("profileBox").classList.toggle("active");
 }
-
-/* CLOSE POPUPS CLICK OUTSIDE */
-document.onclick=()=>{
-document.querySelectorAll(".popup").forEach(p=>p.classList.remove("active"))
+document.onclick=e=>{
+if(!e.target.closest(".btn")&&!e.target.closest("#profileBtn"))
+document.querySelectorAll(".popup").forEach(p=>p.classList.remove("active"));
 }
-
-/* PLANET GENERATOR */
-function planet(){
-let p=document.createElement("div");
-p.className="planet";
-let size=Math.random()*80+20;
-p.style.width=size+"px";
-p.style.height=size+"px";
-p.style.background=`hsl(${Math.random()*360},70%,60%)`;
-p.style.left=Math.random()*100+"%";
-p.style.top=Math.random()*100+"%";
-document.body.appendChild(p);
-setTimeout(()=>p.remove(),300000);
-}
-setInterval(planet,4000);
-
-/* BACKGROUND CHANGE */
-setInterval(()=>{
-document.getElementById("space").style.background=
-`radial-gradient(circle at ${Math.random()*100}% ${Math.random()*100}%,
-hsl(${Math.random()*360},60%,40%), #000)`
-},300000);
-
 </script>
 
 </body>
