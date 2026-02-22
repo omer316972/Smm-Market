@@ -2,162 +2,179 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMM PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMM PRO - Market</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; height: 100vh; }
+        body { font-family: 'Montserrat', sans-serif; background: #0a0a1a; color: #e0e0e0; margin: 0; padding: 15px; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        h1, h2, h3 { color: #df20ff; }
         
-        /* Raket Qatı */
-        #intro-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        .balance-card { 
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%); 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 30px; 
+            border: 2px solid #df20ff; 
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
         }
-        .rocket { font-size: 70px; transform: translateY(120vh); animation: fly 2.2s ease-in-out forwards; }
-        @keyframes fly {
-            0% { transform: translateY(100vh) scale(0.5); }
-            50% { transform: translateY(0) scale(1.2); }
-            100% { transform: translateY(-120vh) scale(0.5); }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(223, 32, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
         }
-        .intro-text { color: #df20ff; font-weight: bold; letter-spacing: 4px; margin-top: 20px; font-size: 22px; opacity: 0; animation: fade 2s 0.3s forwards; }
-        @keyframes fade { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
-
-        /* Əsas Konteynerr */
-        #app-content { opacity: 0; transition: opacity 1s; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-
-        /* Üst Bar */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(223, 32, 255, 0.2); }
-        .u-pic { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #df20ff; }
-
-        /* Leo Kart */
-        .leo-card {
-            width: 90%; max-width: 300px; height: 170px;
-            background: linear-gradient(135deg, #2b004d 0%, #150029 100%);
-            border-radius: 20px; padding: 20px; margin: 20px auto;
-            border: 1px solid rgba(223, 32, 255, 0.4);
-            box-shadow: 0 0 25px rgba(223, 32, 255, 0.2);
-            position: relative; text-align: left;
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        /* Naviqasiya */
-        .nav { position: fixed; bottom: 20px; left: 5%; width: 90%; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border-radius: 25px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.1); z-index: 100; }
-        .nav-item { opacity: 0.4; font-size: 11px; text-align: center; color: white; list-style: none; }
-        .nav-item.active { opacity: 1; color: #df20ff; font-weight: bold; }
+        .balance-card h3 { margin-bottom: 15px; font-size: 1.5em; color: #fff; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+        .balance-card #user-balance { font-size: 2.5em; font-weight: 700; color: #00ff00; text-shadow: 0 0 15px rgba(0, 255, 0, 0.5); }
+        
+        .upload-btn-wrapper { margin-top: 20px; }
+        .upload-btn { 
+            display: inline-block; 
+            background: linear-gradient(90deg, #df20ff, #8a2be2); 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(223, 32, 255, 0.4);
+        }
+        .upload-btn:hover { background: linear-gradient(90deg, #8a2be2, #df20ff); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(223, 32, 255, 0.6); }
+        input[type="file"] { display: none; }
 
-        .section { padding: 20px; text-align: center; display: none; }
-        .section.active { display: block; }
-        .hidden { display: none; }
-        .btn-main { background: #df20ff; color: white; border: none; padding: 14px 40px; border-radius: 12px; font-weight: bold; margin-top: 15px; width: 80%; box-shadow: 0 4px 15px rgba(223,32,255,0.3); }
+        .welcome-text { margin-top: 30px; font-size: 1.1em; line-height: 1.6; color: #c0c0c0; }
+        .welcome-text p strong { color: #df20ff; }
+        
+        .service-section { margin-top: 40px; }
+        .service-list { display: flex; flex-direction: column; gap: 12px; }
+        .service-item { 
+            background: #16162e; 
+            padding: 18px; 
+            border-radius: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border: 1px solid #3a3a5a; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .service-item strong { color: #ffffff; font-size: 1.2em; }
+        .service-item small { color: #a0a0a0; font-size: 0.9em; }
+        .buy-btn { 
+            background: linear-gradient(90deg, #00c6ff, #0072ff); 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: all 0.3s ease;
+        }
+        .buy-btn:hover { background: linear-gradient(90deg, #0072ff, #00c6ff); transform: scale(1.05); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); }
     </style>
 </head>
-<body onclick="startAll()">
-
-    <audio id="bg-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
-
-    <div id="intro-screen">
-        <div class="rocket">🚀</div>
-        <div class="intro-text">SMM PRO</div>
-    </div>
-
-    <div id="app-content">
-        <div id="canvas-container"></div>
-
-        <div class="top-bar">
-            <div style="font-weight: bold; color: #df20ff;">SMM PRO</div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="text-align: right;"><div id="un" style="font-size: 12px;">Müştəri</div><div id="ub" style="color:#4ade80; font-weight:bold;">0.00 ₼</div></div>
-                <img id="up" class="u-pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<body>
+    <div class="container">
+        <div class="balance-card">
+            <h3>Cari Balansınız:</h3>
+            <span id="user-balance">0.00</span> <span style="font-size: 1.5em; color: #e0e0e0;">AZN</span>
+            <div class="upload-btn-wrapper">
+                <label for="fi" class="upload-btn">➕ Balans Artır</label>
+                <input type="file" id="fi" accept="image/*">
             </div>
         </div>
 
-        <div id="sec-xidmet" class="section active">
-            <h2 style="margin-top: 30px;">📦 Xidmətlər</h2>
-            <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px dashed rgba(223,32,255,0.3);">Tezliklə...</div>
+        <div class="welcome-text">
+            <p><strong>SMM PRO</strong>-ya xoş gəlmisən! Bizimlə siz sosial media xidmətlərini asanlıqla əldə edə bilərsiniz.</p>
+            <p>Güvənli və sürətli xidmət üçün bizə etibar edin.</p>
         </div>
 
-        <div id="sec-balans" class="section">
-            <h3>💳 Balans Artır</h3>
-            <div class="leo-card">
-                <div style="color: #df20ff; font-size: 12px; font-weight: bold;">LEOBANK</div>
-                <div style="margin-top: 35px; font-size: 19px; letter-spacing: 2px;">5161 0000 0000 0000</div>
-                <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; opacity: 0.7;">
-                    <span>SƏNİN ADIN</span><span>09/27</span>
-                </div>
+        <div class="service-section">
+            <h2>🔥 Xidmətlərimiz</h2>
+            <div id="services" class="service-list">
+                <p style="color: #a0a0a0;">Xidmətlər yüklənir...</p>
             </div>
-            <button class="btn-main" onclick="document.getElementById('fi').click()">📸 Qəbz Yüklə</button>
-            <input type="file" id="fi" class="hidden" accept="image/*">
-        </div>
-
-        <div id="sec-profil" class="section">
-            <img id="upb" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #df20ff; margin-top: 20px;" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-            <h2 id="unb">İstifadəçi</h2>
-            <div style="background: #df20ff; display: inline-block; padding: 4px 15px; border-radius: 10px; font-size: 12px;">Premium</div>
-        </div>
-
-        <div class="nav">
-            <div class="nav-item active" onclick="tab('xidmet', this)"><span>📦</span><br>Xidmət</div>
-            <div class="nav-item" onclick="tab('balans', this)"><span>💳</span><br>Balans</div>
-            <div class="nav-item" onclick="tab('profil', this)"><span>👤</span><br>Profil</div>
         </div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp; tg.expand();
+        let tg = window.Telegram.WebApp;
+        tg.expand();
 
-        // Giriş Prosesi
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const intro = document.getElementById('intro-screen');
-                const app = document.getElementById('app-content');
-                intro.style.opacity = '0';
-                setTimeout(() => { 
-                    intro.style.visibility = 'hidden'; 
-                    app.style.opacity = '1';
-                }, 800);
-            }, 2500);
+        // Saytdan botun start mesajı içərisindəki balansı oxuyub göstəririk
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const balance = params.get('balance');
+            if (balance) {
+                document.getElementById('user-balance').innerText = parseFloat(balance).toFixed(2);
+            }
         });
 
-        function startAll() {
-            let m = document.getElementById('bg-music');
-            if(m.paused) m.play().catch(e => {});
+        // Qəbz Yükləmə Funksiyası
+        document.getElementById('fi').addEventListener('change', function() {
+            if (tg) {
+                tg.sendData("qebz_atildi");
+                tg.close();
+            }
+        });
+
+        // --- Xidmətlərin yüklənməsi (Botdan API məlumatı gələndə) ---
+        // Bu hissə botdan gələn məlumatı qəbul edəcək
+        if (tg) {
+            tg.onEvent('mainButtonClicked', () => {
+                // Bu düyməyə basanda botdan gələn məlumatı gözləyir
+            });
+            // Botdan gələn data üçün (məsələn, xidmətlər)
+            tg.onEvent('themeChanged', () => {
+                // Tema dəyişdikdə
+            });
+        }
+        
+        // Bu funksiya botdan gələn xidmətləri göstərmək üçündür
+        function renderServices(services) {
+            const container = document.getElementById('services');
+            container.innerHTML = ''; // Köhnə "yüklənir" yazısını silirik
+            if (services.length === 0) {
+                container.innerHTML = "<p style='color: #a0a0a0;'>Hazırda xidmətlər mövcud deyil.</p>";
+                return;
+            }
+            services.forEach(s => {
+                container.innerHTML += `
+                    <div class="service-item">
+                        <div>
+                            <strong>${s.name}</strong><br>
+                            <small>${s.rate} AZN / 1000 ədəd</small>
+                        </div>
+                        <button class="buy-btn" onclick="buyService('${s.service}', '${s.name}', '${s.rate}')">Sifariş Ver</button>
+                    </div>
+                `;
+            });
         }
 
-        // 3D PLANET
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        const planet = new THREE.Mesh(
-            new THREE.SphereGeometry(1.8, 32, 32),
-            new THREE.MeshPhongMaterial({ color: 0xdf20ff, wireframe: true, transparent: true, opacity: 0.15 })
-        );
-        scene.add(planet);
-        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(5,5,5); scene.add(light);
-        camera.position.z = 5;
-
-        function animate() { requestAnimationFrame(animate); planet.rotation.y += 0.002; renderer.render(scene, camera); }
-        animate();
-
-        function tab(t, el) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('sec-' + t).classList.add('active');
-            el.classList.add('active');
+        // Sifariş Ver düyməsinə basanda bot-a məlumat göndərir
+        function buyService(service_id, service_name, service_rate) {
+            if (tg) {
+                tg.sendData(`order_${service_id}_${service_name.replace(/ /g, '_')}_${service_rate}`);
+                tg.close();
+            }
         }
 
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const u = tg.initDataUnsafe.user;
-            document.getElementById('un').innerText = u.first_name;
-            document.getElementById('unb').innerText = u.first_name;
-            if(u.photo_url) { document.getElementById('up').src = u.photo_url; document.getElementById('upb').src = u.photo_url; }
-        }
+        // Test üçün balans və servis yükləmə
+        // Botdan gələn "web_app_data" vasitəsilə bu funksiyalar çağırılacaq
+        // Məsələn, bot 'set_balance_12.50' kimi data göndərə bilər
+        // və ya 'set_services_[{"name":"Foll","rate":"1.2","service":"101"}]'
     </script>
 </body>
 </html>
