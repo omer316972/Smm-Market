@@ -10,7 +10,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 
 # --- MƏLUMATLARI DAXİL ET ---
-TOKEN = "8401084300:AAHIClVs7pTgCQJaI7A42BTQLQT32GQfAU8"
+TOKEN = "8401084300:AAF5y2cjnIpSl4LHKUxfLGof-7Gxy8Sy08E"
 ADMIN_ID = 8566739483 
 WEB_APP_URL = "https://omer316972.github.io/Smm-Market/"
 PANEL_BAKU_API_KEY = "b5b8b170835942c21c44ae65fdec454c"
