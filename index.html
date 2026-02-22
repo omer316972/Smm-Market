@@ -1,159 +1,286 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SMMPro</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+<meta charset="UTF-8">
+<title>SmmPro</title>
 
-    body {
-      background: radial-gradient(circle at center, #0a0a0a, #000);
-      color: #fff;
-      overflow: hidden;
-      height: 100vh;
-    }
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    color:white;
+    overflow:hidden;
+    background:black;
+}
 
-    /* Roket animasiyası */
-    .rocket {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      animation: fly 4s ease-in-out forwards;
-    }
+/* BACKGROUND PLANETS */
+#space{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background: radial-gradient(circle at 30% 30%, #1a2a6c, #000);
+    z-index:-2;
+    transition: background 2s;
+}
 
-    @keyframes fly {
-      0% { top: 100%; opacity: 0; }
-      30% { opacity: 1; }
-      100% { top: -20%; opacity: 0; }
-    }
+/* GLASS STYLE */
+.glass{
+    background:rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:18px;
+    box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
 
-    /* Yazı animasiyası */
-    .intro-text {
-      position: absolute;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 2.5rem;
-      font-weight: 600;
-      opacity: 0;
-      animation: fadeIn 5s ease-in-out 2s forwards;
-    }
+/* HEADER */
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px 40px;
+}
 
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
+/* LOGO */
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    animation:colorShift 4s infinite linear;
+}
+@keyframes colorShift{
+    0%{color:#00f0ff}
+    25%{color:#ff00d4}
+    50%{color:#00ff88}
+    75%{color:#ffaa00}
+    100%{color:#00f0ff}
+}
 
-    /* Planet arxa planı */
-    .planet-bg {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: url('https://cdn.pixabay.com/photo/2017/01/31/13/14/planet-2027762_1280.jpg') center/cover no-repeat;
-      filter: blur(10px) brightness(0.6);
-      z-index: -1;
-      animation: changePlanet 300s infinite alternate;
-    }
+/* PROFILE INFO */
+.profileTop{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding:10px 20px;
+}
 
-    @keyframes changePlanet {
-      0% { background-image: url('https://cdn.pixabay.com/photo/2017/01/31/13/14/planet-2027762_1280.jpg'); }
-      50% { background-image: url('https://cdn.pixabay.com/photo/2016/11/29/09/32/planet-1867616_1280.jpg'); }
-      100% { background-image: url('https://cdn.pixabay.com/photo/2017/02/07/10/33/planet-2042560_1280.jpg'); }
-    }
+/* ROCKET INTRO */
+#intro{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:10;
+}
 
-    /* Şüşə effektli menyular */
-    .bottom-menu {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 15px 30px;
-    }
+.rocket{
+    font-size:60px;
+    animation:fly 2s forwards ease-in;
+}
+@keyframes fly{
+    from{transform:translateY(200px);}
+    to{transform:translateY(-400px);}
+}
 
-    .menu-item {
-      cursor: pointer;
-      font-weight: 500;
-      transition: 0.3s;
-    }
+#introText{
+    opacity:0;
+    margin-top:20px;
+    font-size:28px;
+    animation:showText 2s 1.5s forwards;
+}
+@keyframes showText{
+    to{opacity:1;}
+}
 
-    .menu-item:hover {
-      color: #00bfff;
-    }
+/* CATEGORIES */
+.categories{
+    position:absolute;
+    bottom:40px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:20px 40px;
+    cursor:pointer;
+    transition:.3s;
+}
+.categories:hover{ transform:translateX(-50%) scale(1.05); }
 
-    /* Profil və balans */
-    .top-right {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 10px 20px;
-      border-radius: 15px;
-    }
+.catList{
+    display:none;
+    margin-top:15px;
+}
+.catList div{
+    padding:10px;
+}
 
-    .profile-pic {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: url('https://cdn-icons-png.flaticon.com/512/3135/3135715.png') center/cover no-repeat;
-    }
+/* BUTTON */
+.btn{
+    margin-top:15px;
+    padding:12px 25px;
+    cursor:pointer;
+    text-align:center;
+}
 
-    .balance {
-      font-weight: 600;
-      color: #00ffcc;
-    }
+/* CARD POPUP */
+.popup{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    width:320px;
+    padding:25px;
+    text-align:center;
+    transition:.4s;
+    z-index:5;
+}
+.popup.active{
+    transform:translate(-50%,-50%) scale(1);
+}
 
-    /* Logo */
-    .logo {
-      position: absolute;
-      top: 20px;
-      left: 30px;
-      font-size: 1.8rem;
-      font-weight: 700;
-      background: linear-gradient(90deg, #00bfff, #ff00ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: colorShift 3s infinite alternate;
-    }
+/* CARD DESIGN */
+.card{
+    height:180px;
+    padding:20px;
+    border-radius:20px;
+    background:linear-gradient(135deg,#00c6ff,#0072ff);
+    text-align:left;
+    position:relative;
+}
+.card span{
+    display:block;
+    margin-top:15px;
+}
 
-    @keyframes colorShift {
-      0% { background: linear-gradient(90deg, #00bfff, #ff00ff); }
-      100% { background: linear-gradient(90deg, #ff00ff, #00bfff); }
-    }
-  </style>
+/* PROFILE BUTTON */
+#profileBtn{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    padding:15px;
+    cursor:pointer;
+}
+
+/* PLANET DOT */
+.planet{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(1px);
+    opacity:.7;
+}
+</style>
 </head>
+
 <body>
-  <div class="planet-bg"></div>
-  <img src="https://cdn-icons-png.flaticon.com/png/512/3132/premium/3132693.png" class="rocket" alt="rocket">
-  <div class="intro-text">Azərbaycanın ən sürətli SMM saytı 🚀</div>
 
-  <div class="logo">SMMPro</div>
+<div id="space"></div>
 
-  <div class="top-right">
-    <div class="profile-pic"></div>
-    <div class="username">@istifadeci</div>
-    <div class="balance">₼ 125.00</div>
-  </div>
+<!-- INTRO -->
+<div id="intro">
+<div class="rocket">🚀</div>
+<div id="introText">Azərbaycanın ən sürətli SMM saytı</div>
+</div>
 
-  <div class="bottom-menu">
-    <div class="menu-item">Kategorilər</div>
-    <div class="menu-item">Balans artır</div>
-    <div class="menu-item">Profilim</div>
-  </div>
+<header>
+<div class="logo">SmmPro</div>
+
+<div class="profileTop glass">
+<img src="https://i.pravatar.cc/40" style="border-radius:50%">
+<div>
+<div>@user</div>
+<div>Balans: 12.40₼</div>
+</div>
+</div>
+</header>
+
+<!-- CATEGORIES -->
+<div class="categories glass" onclick="toggleCats()">
+Kateqoriyalar
+<div class="catList" id="cats">
+<div>Instagram</div>
+<div>TikTok</div>
+<div>YouTube</div>
+</div>
+
+<div class="btn glass" onclick="openCard(event)">Balans artır</div>
+</div>
+
+<!-- CARD POPUP -->
+<div class="popup glass" id="cardBox">
+<div class="card">
+<strong>SmmPro</strong>
+<span>0000 1111 2222 3333</span>
+<span>Ad Soyad</span>
+<span>Balans: 12.40₼</span>
+</div>
+
+<div class="btn glass">Qəbzi yüklə</div>
+</div>
+
+<!-- PROFILE BUTTON -->
+<div id="profileBtn" class="glass" onclick="openProfile()">Profil</div>
+
+<!-- PROFILE CARD -->
+<div class="popup glass" id="profileBox">
+<div class="card">
+<strong>SmmPro</strong>
+<span>@user</span>
+<span>Balans: 12.40₼</span>
+</div>
+</div>
+
+<script>
+
+/* INTRO HIDE */
+setTimeout(()=>{
+document.getElementById("intro").style.display="none";
+},3500)
+
+/* CATEGORY TOGGLE */
+function toggleCats(){
+let c=document.getElementById("cats");
+c.style.display=c.style.display=="block"?"none":"block";
+}
+
+/* CARD OPEN */
+function openCard(e){
+e.stopPropagation();
+document.getElementById("cardBox").classList.toggle("active");
+}
+
+/* PROFILE OPEN */
+function openProfile(){
+document.getElementById("profileBox").classList.toggle("active");
+}
+
+/* CLOSE POPUPS CLICK OUTSIDE */
+document.onclick=()=>{
+document.querySelectorAll(".popup").forEach(p=>p.classList.remove("active"))
+}
+
+/* PLANET GENERATOR */
+function planet(){
+let p=document.createElement("div");
+p.className="planet";
+let size=Math.random()*80+20;
+p.style.width=size+"px";
+p.style.height=size+"px";
+p.style.background=`hsl(${Math.random()*360},70%,60%)`;
+p.style.left=Math.random()*100+"%";
+p.style.top=Math.random()*100+"%";
+document.body.appendChild(p);
+setTimeout(()=>p.remove(),300000);
+}
+setInterval(planet,4000);
+
+/* BACKGROUND CHANGE */
+setInterval(()=>{
+document.getElementById("space").style.background=
+`radial-gradient(circle at ${Math.random()*100}% ${Math.random()*100}%,
+hsl(${Math.random()*360},60%,40%), #000)`
+},300000);
+
+</script>
+
 </body>
 </html>
