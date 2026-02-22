@@ -3,154 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMM Veb Bot</title>
+    <title>SMM Pro Veb</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Kosmos və 3D arxa plan effekti */
         body {
             margin: 0; padding: 0;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-            color: white;
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+            background: #090a0f; color: white;
+            height: 100vh; overflow: hidden;
         }
 
-        /* Ulduzlar animasiyası */
+        /* Arxa plan ulduzları */
         .stars {
-            position: absolute; width: 100%; height: 100%;
-            background: transparent url('https://cdn.pixabay.com/photo/2016/01/27/15/25/space-1164579_960_720.png') repeat top center;
-            animation: moveStars 50s linear infinite;
-            z-index: -1; opacity: 0.5;
+            position: fixed; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            z-index: -1;
         }
-        @keyframes moveStars { from {background-position: 0 0;} to {background-position: -10000px 5000px;} }
 
-        /* Raket və Giriş yazısı */
+        /* Raket Girişi */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #090a0f; z-index: 100;
+            background: #000; z-index: 1000;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 1s ease-out;
         }
-        .rocket { font-size: 80px; animation: fly 2s ease-in-out forwards; }
-        @keyframes fly { 
-            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-            50% { transform: translateY(0) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-100vh) scale(0.5); opacity: 0; }
+        .rocket { font-size: 60px; animation: flyUp 2.5s ease-in-out forwards; }
+        @keyframes flyUp {
+            0% { transform: translateY(100vh); opacity: 0; }
+            50% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100vh); opacity: 0; }
         }
-        .intro-text {
-            font-size: 24px; font-weight: bold; font-style: italic;
-            background: -webkit-linear-gradient(#00d2ff, #3a7bd5);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            opacity: 0; animation: fadeInOut 3s 1s forwards; text-align: center; padding: 20px;
-        }
-        @keyframes fadeInOut { 0% { opacity: 0; } 30% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 
-        /* Üst Profil Qismi */
+        /* Üst Bar */
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px);
         }
-        .brand { font-size: 18px; font-weight: bold; color: #00d2ff;}
-        .user-info { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);}
-        .user-info img { width: 30px; height: 30px; border-radius: 50%; }
-        .user-details { display: flex; flex-direction: column; font-size: 12px; text-align: right;}
-        .balance { font-weight: bold; color: #4ade80; font-size: 14px;}
+        .user-box { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .user-box img { width: 35px; height: 35px; border-radius: 50%; border: 1px solid #00d2ff; }
 
-        /* Əsas Məzmun Sahəsi */
-        .content { padding: 20px; height: calc(100vh - 160px); overflow-y: auto; }
-        
-        /* Şüşə Menyular (Alt Naviqasiya) */
+        /* Kart Dizaynı */
+        .abb-card {
+            width: 280px; height: 160px;
+            background: linear-gradient(135deg, #005aab, #002d56);
+            border-radius: 15px; padding: 20px;
+            margin: 20px auto; position: relative;
+            box-shadow: 0 10px 30px rgba(0,210,255,0.3);
+        }
+
+        /* Şüşə Menyular */
         .glass-nav {
             position: fixed; bottom: 20px; left: 5%; width: 90%;
             background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 25px;
-            display: flex; justify-content: space-around; padding: 10px 0;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border-radius: 20px; display: flex; justify-content: space-around; padding: 12px 0;
         }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: white; font-size: 12px; gap: 5px; opacity: 0.7; transition: 0.3s;
+        .nav-item { opacity: 0.6; font-size: 12px; text-align: center; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: #00d2ff; font-weight: bold; }
+
+        .hidden { display: none; }
+        .content-area { padding: 20px; text-align: center; height: 70vh; overflow-y: auto; }
+        
+        button.upload-btn {
+            background: #00d2ff; color: black; border: none;
+            padding: 12px 25px; border-radius: 10px; font-weight: bold; margin-top: 15px;
         }
-        .nav-item.active { opacity: 1; color: #00d2ff; transform: scale(1.1); }
-        .nav-icon { font-size: 22px; }
     </style>
 </head>
 <body>
 
     <div id="intro-screen">
         <div class="rocket">🚀</div>
-        <div class="intro-text">Azərbaycanın ən güclü SMM saytı</div>
+        <div style="color: #00d2ff; margin-top: 20px;">Azərbaycanın Ən Güclü SMM Botu</div>
     </div>
 
     <div class="stars"></div>
 
     <div class="top-bar">
-        <div class="brand">SMM Pro</div>
-        <div class="user-info">
-            <div class="user-details">
-                <span id="user-name">İstifadəçi</span>
-                <span class="balance" id="user-balance">0.00 ₼</span>
+        <div style="font-weight: bold; color: #00d2ff;">PANELBAKU PRO</div>
+        <div class="user-box">
+            <div style="text-align: right;">
+                <div id="u_name">Yüklənir...</div>
+                <div id="u_bal" style="color: #4ade80; font-weight: bold;">0.00 ₼</div>
             </div>
-            <img id="user-pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profil">
+            <img id="u_pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
         </div>
     </div>
 
-    <div class="content" id="main-content">
-        <h2 style="text-align:center; margin-top:50px;">Xidmətlər yüklənir...</h2>
+    <div class="content-area">
+        <div id="tab-xidmet">
+            <h2>📦 Xidmətlər</h2>
+            <p style="opacity: 0.7;">PanelBaku xidmətləri tezliklə bura bağlanacaq...</p>
         </div>
 
+        <div id="tab-balans" class="hidden">
+            <h3>💳 Balans Artır</h3>
+            <div class="abb-card">
+                <div style="text-align: left; font-size: 12px; opacity: 0.8;">ABB BANK</div>
+                <div style="margin-top: 35px; font-size: 18px; letter-spacing: 2px;">4127 0000 0000 0000</div>
+                <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px;">
+                    <span>SƏNİN ADIN</span>
+                    <span>12/28</span>
+                </div>
+            </div>
+            <p style="font-size: 13px; padding: 0 10px;">Ödəniş edin və qəbzin şəklini bura yükləyin:</p>
+            <input type="file" id="file-input" class="hidden" accept="image/*" onchange="fileSelected()">
+            <button class="upload-btn" onclick="document.getElementById('file-input').click()">📸 Qəbz Yüklə</button>
+            <div id="status" style="margin-top: 10px; color: #4ade80;"></div>
+        </div>
+    </div>
+
     <div class="glass-nav">
-        <div class="nav-item active" onclick="changeTab(this)">
-            <span class="nav-icon">📦</span>
-            <span>Xidmətlər</span>
-        </div>
-        <div class="nav-item" onclick="changeTab(this)">
-            <span class="nav-icon">💳</span>
-            <span>Balans Artır</span>
-        </div>
-        <div class="nav-item" onclick="changeTab(this)">
-            <span class="nav-icon">👤</span>
-            <span>Profilim</span>
-        </div>
+        <div class="nav-item active" onclick="showTab('xidmet', this)"><span>📦</span><br>Xidmətlər</div>
+        <div class="nav-item" onclick="showTab('balans', this)"><span>💳</span><br>Balans</div>
+        <div class="nav-item" onclick="showTab('profil', this)"><span>👤</span><br>Profil</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Tam ekran
+        tg.expand();
 
-        // Telegramdan məlumatları çəkmək
+        // İstifadəçi məlumatları
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name;
-            // Qeyd: Telegram API bəzən şəkil URL-ni gizli saxlayır, əgər varsa yükləyəcək
-            if(tg.initDataUnsafe.user.photo_url) {
-                document.getElementById('user-pic').src = tg.initDataUnsafe.user.photo_url;
-            }
+            document.getElementById('u_name').innerText = tg.initDataUnsafe.user.first_name;
+            if(tg.initDataUnsafe.user.photo_url) document.getElementById('u_pic').src = tg.initDataUnsafe.user.photo_url;
         }
 
-        // Raket giriş ekranını 3.5 saniyə sonra gizlətmək
-        setTimeout(() => {
-            document.getElementById('intro-screen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('intro-screen').style.display = 'none';
-            }, 1000);
-        }, 3500);
+        // Giriş ekranını silmək
+        setTimeout(() => { document.getElementById('intro-screen').remove(); }, 3000);
 
-        // Alt menyu düymələrini aktivləşdirmək
-        function changeTab(element) {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        // Tab keçidləri
+        function showTab(tabId, el) {
+            document.getElementById('tab-xidmet').classList.add('hidden');
+            document.getElementById('tab-balans').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             
-            // Seçilən menyuya görə məzmunu dəyişmək (Gələcəkdə bura funksiyalar yazacağıq)
-            let tabName = element.innerText.trim();
-            if(tabName === "Balans Artır") {
-                document.getElementById('main-content').innerHTML = "<h3 style='text-align:center'>💳 ABB Kartı və Qəbz Yükləmə bölməsi tezliklə...</h3>";
-            } else if(tabName === "Profilim") {
-                document.getElementById('main-content').innerHTML = "<h3 style='text-align:center'>👤 Sizin Bot Balansınız: 0.00 ₼</h3>";
-            } else {
-                document.getElementById('main-content').innerHTML = "<h3 style='text-align:center'>📦 PanelBaku Xidmətləri...</h3>";
-            }
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            el.classList.add('active');
+        }
+
+        function fileSelected() {
+            const status = document.getElementById('status');
+            status.innerText = "Qəbz seçildi! Təsdiq üçün göndərilir...";
+            // Burada Telegram-a məlumat göndərmə kodu olacaq
+            tg.sendData("qebz_atildi"); 
         }
     </script>
 </body>
