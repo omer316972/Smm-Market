@@ -7,168 +7,156 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000; color: white; height: 100vh; overflow: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; background: #000; color: white; font-family: sans-serif; overflow: hidden; height: 100vh; }
         
-        /* Raket və Intro */
-        #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .rocket { font-size: 80px; position: absolute; bottom: -100px; animation: rocketFly 2.5s ease-in-out forwards; }
-        @keyframes rocketFly { 0% { bottom: -150px; opacity: 1; } 100% { bottom: 120vh; opacity: 0; } }
+        /* Raket Qatı */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        }
+        .rocket { font-size: 70px; transform: translateY(120vh); animation: fly 2.2s ease-in-out forwards; }
+        @keyframes fly {
+            0% { transform: translateY(100vh) scale(0.5); }
+            50% { transform: translateY(0) scale(1.2); }
+            100% { transform: translateY(-120vh) scale(0.5); }
+        }
+        .intro-text { color: #df20ff; font-weight: bold; letter-spacing: 4px; margin-top: 20px; font-size: 22px; opacity: 0; animation: fade 2s 0.3s forwards; }
+        @keyframes fade { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* Əsas Konteynerr */
+        #app-content { opacity: 0; transition: opacity 1s; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
         /* Üst Bar */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(0,0,0,0.5); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .user-box img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #df20ff; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(223, 32, 255, 0.2); }
+        .u-pic { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #df20ff; }
 
-        /* Leobank Kart Dizaynı */
+        /* Leo Kart */
         .leo-card {
-            width: 280px; height: 160px;
-            background: linear-gradient(135deg, #2b004d 0%, #1a0033 100%);
-            border-radius: 18px; padding: 20px; margin: 10px auto;
-            position: relative; overflow: hidden; border: 1px solid rgba(223, 32, 255, 0.3);
-            box-shadow: 0 0 20px rgba(223, 32, 255, 0.2);
+            width: 90%; max-width: 300px; height: 170px;
+            background: linear-gradient(135deg, #2b004d 0%, #150029 100%);
+            border-radius: 20px; padding: 20px; margin: 20px auto;
+            border: 1px solid rgba(223, 32, 255, 0.4);
+            box-shadow: 0 0 25px rgba(223, 32, 255, 0.2);
+            position: relative; text-align: left;
         }
-        .leo-card::before { content: "🦁"; position: absolute; right: 10px; bottom: 10px; font-size: 40px; opacity: 0.2; }
-        
-        /* Profil Bölməsi */
-        .profile-container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .p-img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #df20ff; margin-bottom: 10px; box-shadow: 0 0 20px #df20ff; }
-        .status-badge { background: #df20ff; color: white; padding: 4px 12px; border-radius: 10px; font-size: 12px; margin-top: 5px; }
 
         /* Naviqasiya */
-        .glass-nav { position: fixed; bottom: 20px; left: 5%; width: 90%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 0; border: 1px solid rgba(255,255,255,0.1); }
-        .nav-item { opacity: 0.4; font-size: 11px; text-align: center; color: white; transition: 0.3s; }
-        .nav-item.active { opacity: 1; color: #df20ff; transform: scale(1.1); }
+        .nav { position: fixed; bottom: 20px; left: 5%; width: 90%; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border-radius: 25px; display: flex; justify-content: space-around; padding: 12px; border: 1px solid rgba(255,255,255,0.1); z-index: 100; }
+        .nav-item { opacity: 0.4; font-size: 11px; text-align: center; color: white; list-style: none; }
+        .nav-item.active { opacity: 1; color: #df20ff; font-weight: bold; }
 
-        .content-area { padding: 10px; text-align: center; height: 75vh; overflow-y: auto; }
+        .section { padding: 20px; text-align: center; display: none; }
+        .section.active { display: block; }
         .hidden { display: none; }
-        .btn-up { background: #df20ff; color: white; border: none; padding: 12px 40px; border-radius: 12px; font-weight: bold; margin-top: 5px; cursor: pointer; box-shadow: 0 5px 15px rgba(223,32,255,0.4); }
+        .btn-main { background: #df20ff; color: white; border: none; padding: 14px 40px; border-radius: 12px; font-weight: bold; margin-top: 15px; width: 80%; box-shadow: 0 4px 15px rgba(223,32,255,0.3); }
     </style>
 </head>
-<body onclick="startMusic()">
+<body onclick="startAll()">
 
-    <audio id="bg-music" loop>
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bg-music" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg"></audio>
 
     <div id="intro-screen">
         <div class="rocket">🚀</div>
-        <div style="color: #df20ff; margin-top: 20px; letter-spacing: 3px;">SMM PRO</div>
+        <div class="intro-text">SMM PRO</div>
     </div>
 
-    <div id="canvas-container"></div>
+    <div id="app-content">
+        <div id="canvas-container"></div>
 
-    <div class="top-bar">
-        <div style="font-weight: bold; color: #df20ff;">SMM PRO</div>
-        <div class="user-box">
-            <div style="text-align: right; margin-right: 8px;">
-                <div id="u_name" style="font-size: 12px;">Yüklənir...</div>
-                <div id="u_bal" style="color: #4ade80; font-weight: bold;">0.00 ₼</div>
+        <div class="top-bar">
+            <div style="font-weight: bold; color: #df20ff;">SMM PRO</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="text-align: right;"><div id="un" style="font-size: 12px;">Müştəri</div><div id="ub" style="color:#4ade80; font-weight:bold;">0.00 ₼</div></div>
+                <img id="up" class="u-pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
             </div>
-            <img id="u_pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-        </div>
-    </div>
-
-    <div class="content-area">
-        <div id="tab-xidmet">
-            <h2 style="margin-top: 20px;">📦 Xidmətlər</h2>
-            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px;">Kategoriyalar yüklənir...</div>
         </div>
 
-        <div id="tab-balans" class="hidden">
-            <h3 style="margin-bottom: 5px;">💳 Balans Artır</h3>
+        <div id="sec-xidmet" class="section active">
+            <h2 style="margin-top: 30px;">📦 Xidmətlər</h2>
+            <div style="background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; border: 1px dashed rgba(223,32,255,0.3);">Tezliklə...</div>
+        </div>
+
+        <div id="sec-balans" class="section">
+            <h3>💳 Balans Artır</h3>
             <div class="leo-card">
-                <div style="text-align: left; font-size: 12px; color: #df20ff;">LEOBANK</div>
-                <div style="margin-top: 35px; font-size: 18px; letter-spacing: 2px; font-family: monospace;">5161 0000 0000 0000</div>
-                <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; opacity: 0.8;">
-                    <span>SƏNİN ADIN</span>
-                    <span>09/27</span>
+                <div style="color: #df20ff; font-size: 12px; font-weight: bold;">LEOBANK</div>
+                <div style="margin-top: 35px; font-size: 19px; letter-spacing: 2px;">5161 0000 0000 0000</div>
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 11px; opacity: 0.7;">
+                    <span>SƏNİN ADIN</span><span>09/27</span>
                 </div>
             </div>
-            <button class="btn-up" onclick="document.getElementById('file-in').click()">📸 Qəbz Yüklə</button>
-            <input type="file" id="file-in" class="hidden" accept="image/*">
-            <p style="font-size: 11px; opacity: 0.6; margin-top: 10px;">Ödənişdən sonra qəbzi skan edin.</p>
+            <button class="btn-main" onclick="document.getElementById('fi').click()">📸 Qəbz Yüklə</button>
+            <input type="file" id="fi" class="hidden" accept="image/*">
         </div>
 
-        <div id="tab-profil" class="hidden">
-            <div class="profile-container">
-                <img id="u_pic_big" class="p-img" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-                <h2 id="u_name_big" style="margin: 5px 0;">İstifadəçi</h2>
-                <div class="status-badge">Premium Müştəri</div>
-                
-                <div style="width: 100%; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;">
-                        <div style="font-size: 10px; opacity: 0.6;">Ümumi Xərc</div>
-                        <div style="font-weight: bold;">0.00 ₼</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;">
-                        <div style="font-size: 10px; opacity: 0.6;">Sifarişlər</div>
-                        <div style="font-weight: bold;">0</div>
-                    </div>
-                </div>
-                <button style="width: 100%; background: none; border: 1px solid #df20ff; color: #df20ff; padding: 10px; border-radius: 10px; margin-top: 15px; font-size: 12px;">Dəstək ilə əlaqə</button>
-            </div>
+        <div id="sec-profil" class="section">
+            <img id="upb" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #df20ff; margin-top: 20px;" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+            <h2 id="unb">İstifadəçi</h2>
+            <div style="background: #df20ff; display: inline-block; padding: 4px 15px; border-radius: 10px; font-size: 12px;">Premium</div>
         </div>
-    </div>
 
-    <div class="glass-nav">
-        <div class="nav-item active" onclick="showTab('xidmet', this)"><span>📦</span><br>Xidmətlər</div>
-        <div class="nav-item" onclick="showTab('balans', this)"><span>💳</span><br>Balans</div>
-        <div class="nav-item" onclick="showTab('profil', this)"><span>👤</span><br>Profil</div>
+        <div class="nav">
+            <div class="nav-item active" onclick="tab('xidmet', this)"><span>📦</span><br>Xidmət</div>
+            <div class="nav-item" onclick="tab('balans', this)"><span>💳</span><br>Balans</div>
+            <div class="nav-item" onclick="tab('profil', this)"><span>👤</span><br>Profil</div>
+        </div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        let tg = window.Telegram.WebApp; tg.expand();
 
-        // Musiqi funksiyası (Ekrana ilk toxunuşda başlayır)
-        function startMusic() {
-            let music = document.getElementById('bg-music');
-            if(music.paused) music.play().catch(e => {});
+        // Giriş Prosesi
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const intro = document.getElementById('intro-screen');
+                const app = document.getElementById('app-content');
+                intro.style.opacity = '0';
+                setTimeout(() => { 
+                    intro.style.visibility = 'hidden'; 
+                    app.style.opacity = '1';
+                }, 800);
+            }, 2500);
+        });
+
+        function startAll() {
+            let m = document.getElementById('bg-music');
+            if(m.paused) m.play().catch(e => {});
         }
 
-        // 3D PLANET (Bənövşəyi rəngdə)
+        // 3D PLANET
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
         const planet = new THREE.Mesh(
             new THREE.SphereGeometry(1.8, 32, 32),
-            new THREE.MeshPhongMaterial({ color: 0xdf20ff, wireframe: true, transparent: true, opacity: 0.2 })
+            new THREE.MeshPhongMaterial({ color: 0xdf20ff, wireframe: true, transparent: true, opacity: 0.15 })
         );
         scene.add(planet);
-        scene.add(new THREE.PointLight(0xffffff, 1, 100).clone().set(5,5,5));
+        const light = new THREE.PointLight(0xffffff, 1, 100); light.position.set(5,5,5); scene.add(light);
         camera.position.z = 5;
 
-        function animate() {
-            requestAnimationFrame(animate);
-            planet.rotation.y += 0.003;
-            renderer.render(scene, camera);
-        }
+        function animate() { requestAnimationFrame(animate); planet.rotation.y += 0.002; renderer.render(scene, camera); }
         animate();
 
-        setTimeout(() => { document.getElementById('intro-screen').style.opacity = '0'; 
-            setTimeout(() => document.getElementById('intro-screen').remove(), 1000);
-        }, 3000);
-
-        function showTab(t, el) {
-            document.getElementById('tab-xidmet').classList.add('hidden');
-            document.getElementById('tab-balans').classList.add('hidden');
-            document.getElementById('tab-profil').classList.add('hidden');
+        function tab(t, el) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('tab-'+t).classList.remove('hidden');
+            document.getElementById('sec-' + t).classList.add('active');
             el.classList.add('active');
         }
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const user = tg.initDataUnsafe.user;
-            document.getElementById('u_name').innerText = user.first_name;
-            document.getElementById('u_name_big').innerText = user.first_name;
-            if(user.photo_url) {
-                document.getElementById('u_pic').src = user.photo_url;
-                document.getElementById('u_pic_big').src = user.photo_url;
-            }
+            const u = tg.initDataUnsafe.user;
+            document.getElementById('un').innerText = u.first_name;
+            document.getElementById('unb').innerText = u.first_name;
+            if(u.photo_url) { document.getElementById('up').src = u.photo_url; document.getElementById('upb').src = u.photo_url; }
         }
     </script>
 </body>
