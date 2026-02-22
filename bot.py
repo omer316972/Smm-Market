@@ -7,11 +7,11 @@ from aiogram.filters import CommandStart
 from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 
 # MƏLUMATLARI DAXİL ET
-TOKEN = "SƏNİN_BOT_TOKENİN"
-ADMIN_ID = 123456789  
-WEB_APP_URL = "https://istifadəçi-adın.github.io/repo-adın/"
-KANAL_LINK = "https://t.me/seninkanalin"
-DESTEK_LINK = "https://t.me/senin_profilin"
+TOKEN = "8401084300:AAHIClVs7pTgCQJaI7A42BTQLQT32GQfAU8"
+ADMIN_ID = 8566739483  
+WEB_APP_URL = "https://omer316972.github.io/Smm-Market/"
+KANAL_LINK = "https://t.me/TapBaxaq"
+DESTEK_LINK = "https://t.me/TapBaxaq"
 PHOTO_URL = "https://img.freepik.com/free-vector/gradient-social-media-marketing-concept_23-2149021820.jpg"
 
 bot = Bot(token=TOKEN)
