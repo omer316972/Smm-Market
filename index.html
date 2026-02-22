@@ -3,65 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMM AZERBAIJAN</title>
+    <title>SMM AZERBAIJAN PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #000; color: white; height: 100vh; overflow: hidden; }
         
-        /* 3D Arxa Plan */
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-        /* Raket Girişi */
+        /* Giriş Raket Animasiyası */
         #intro-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 1s ease;
         }
-        .rocket { font-size: 80px; position: absolute; bottom: -100px; filter: drop-shadow(0 0 20px #ffaa00); }
+        .rocket { font-size: 80px; position: absolute; bottom: -150px; filter: drop-shadow(0 0 20px #ffaa00); }
         .fly-animation { animation: rocketFly 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
         @keyframes rocketFly {
-            0% { bottom: -150px; transform: translateX(0) rotate(0deg) scale(0.5); opacity: 1; }
-            40% { bottom: 50%; transform: translateX(20px) rotate(-10deg) scale(1.2); }
-            100% { bottom: 120vh; transform: translateX(-50px) rotate(-20deg) scale(0.3); opacity: 0; }
+            0% { bottom: -150px; transform: scale(0.5); opacity: 1; }
+            40% { bottom: 50%; transform: scale(1.2); }
+            100% { bottom: 120vh; transform: scale(0.3); opacity: 0; }
         }
-        .intro-text { color: #00d2ff; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 2px; opacity: 0; animation: fadeInOut 2s 0.5s forwards; }
-        @keyframes fadeInOut { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        .intro-text { color: #00d2ff; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0; animation: fadeIn 2s forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Üst Bar */
+        /* Üst Panel */
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px);
+            padding: 15px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .user-box { display: flex; align-items: center; gap: 8px; }
-        .user-box img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #00d2ff; }
+        .user-box { display: flex; align-items: center; gap: 10px; }
+        .user-box img { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #00d2ff; }
 
         /* LeoBank Kartı */
         .leo-card {
-            width: 280px; height: 160px;
-            background: linear-gradient(135deg, #1d1d1d, #333);
-            border-radius: 15px; padding: 20px; margin: 20px auto;
-            position: relative; box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+            width: 290px; height: 170px;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            border-radius: 20px; padding: 20px; margin: 20px auto;
+            position: relative; box-shadow: 0 0 30px rgba(0, 210, 255, 0.2);
             border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Xidmətlər Siyahısı */
-        .content-area { padding: 20px; text-align: center; height: 70vh; overflow-y: auto; padding-bottom: 100px; }
-        .service-container { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; backdrop-filter: blur(10px); margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); text-align: left; display: flex; justify-content: space-between; align-items: center;}
+        /* Kontent Sahəsi */
+        .content-area { padding: 20px; text-align: center; height: 65vh; overflow-y: auto; padding-bottom: 100px; }
         .hidden { display: none; }
 
-        /* Alt Menyu */
+        /* Xidmət Kartları */
+        .service-item {
+            background: rgba(255,255,255,0.07); padding: 15px; border-radius: 15px; 
+            margin-bottom: 12px; display: flex; justify-content: space-between; 
+            align-items: center; border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px); text-align: left;
+        }
+        .btn-buy { background: #00d2ff; color: #000; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; }
+
+        /* Alt Naviqasiya */
         .glass-nav {
             position: fixed; bottom: 20px; left: 5%; width: 90%;
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(25px);
             border-radius: 25px; display: flex; justify-content: space-around; padding: 12px 0;
             border: 1px solid rgba(255,255,255,0.2); z-index: 100;
         }
-        .nav-item { opacity: 0.5; font-size: 11px; text-align: center; cursor: pointer; color: white; transition: 0.3s; }
+        .nav-item { opacity: 0.5; font-size: 11px; text-align: center; cursor: pointer; transition: 0.3s; }
         .nav-item.active { opacity: 1; color: #00d2ff; transform: scale(1.1); }
-
-        .btn-buy { background: #00d2ff; color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -70,17 +75,17 @@
     
     <div id="intro-screen">
         <div id="rocket" class="rocket">🚀</div>
-        <div class="intro-text">SMM PRO AZERBAIJAN</div>
+        <div class="intro-text">SMM AZERBAIJAN PRO</div>
     </div>
 
     <div id="canvas-container"></div>
 
     <div class="top-bar">
-        <div style="font-weight: bold; letter-spacing: 1px; color: #00d2ff;">SMM PRO</div>
+        <div style="font-weight: bold; color: #00d2ff; letter-spacing: 1px;">SMM PANEL</div>
         <div class="user-box">
-            <div style="text-align: right; margin-right: 8px;">
-                <div id="u_name" style="font-size: 12px;">...</div>
-                <div id="u_bal" style="color: #4ade80; font-weight: bold; font-size: 14px;">0.00 ₼</div>
+            <div style="text-align: right;">
+                <div id="u_name" style="font-size: 12px; font-weight: 500;">Yüklənir...</div>
+                <div id="u_bal" style="color: #4ade80; font-weight: bold; font-size: 15px;">0.00 ₼</div>
             </div>
             <img id="u_pic" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
         </div>
@@ -88,36 +93,36 @@
 
     <div class="content-area">
         <div id="tab-xidmet">
-            <h2 style="font-size: 18px;">📦 Xidmətlər Menyusu</h2>
+            <h3 style="margin-bottom: 20px;">📦 Xidmətlər</h3>
             <div id="services-list">
-                <p style="opacity: 0.5;">Xidmətlər yüklənir...</p>
+                <p style="opacity: 0.5;">Xidmətlər bota bağlanır...</p>
             </div>
         </div>
 
         <div id="tab-balans" class="hidden">
-            <h3 style="font-size: 18px;">💳 Balans Artır</h3>
+            <h3>💳 Balans Artır</h3>
             <div class="leo-card">
                 <div style="text-align: left; font-size: 12px; color: #ffeb3b; font-weight: bold;">LEO BANK</div>
-                <div style="margin-top: 35px; font-size: 18px; letter-spacing: 2px; font-family: monospace;">5411 2498 1332 8171</div>
+                <div style="margin-top: 35px; font-size: 19px; letter-spacing: 2px; font-family: monospace;">5411 2498 1332 8171</div>
                 <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; opacity: 0.8;">
                     <span>Ömər</span>
                     <span>12/28</span>
                 </div>
             </div>
-            <p style="font-size: 13px; padding: 10px; opacity: 0.8;">Ödəniş edin və qəbzin şəklini bura yükləyin:</p>
+            <p style="font-size: 13px; opacity: 0.7; padding: 10px;">Ödənişdən sonra qəbzi yükləyin:</p>
             <input type="file" id="file-in" class="hidden" accept="image/*" onchange="fileSent()">
-            <button onclick="document.getElementById('file-in').click()" style="background: #00d2ff; color: black; border: none; padding: 15px 30px; border-radius: 12px; font-weight: bold; box-shadow: 0 5px 15px rgba(0,210,255,0.4);">📸 Qəbz At</button>
-            <div id="status" style="margin-top: 15px; color: #4ade80; font-size: 12px;"></div>
+            <button onclick="document.getElementById('file-in').click()" style="background: #00d2ff; color: black; border: none; padding: 15px 35px; border-radius: 12px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,210,255,0.3);">📸 Qəbz Yüklə</button>
+            <div id="status" style="margin-top: 15px; color: #4ade80;"></div>
         </div>
     </div>
 
     <div class="glass-nav">
         <div class="nav-item active" onclick="showTab('xidmet', this)">
-            <div style="font-size: 20px;">📦</div>
-            <div>Xidmətlər</div>
+            <div style="font-size: 22px;">📦</div>
+            <div>Market</div>
         </div>
         <div class="nav-item" onclick="showTab('balans', this)">
-            <div style="font-size: 20px;">💳</div>
+            <div style="font-size: 22px;">💳</div>
             <div>Balans</div>
         </div>
     </div>
@@ -126,18 +131,18 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // 3D PLANET SİSTEMİ
+        // --- 3D PLANET (Three.js) ---
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        const planetGeo = new THREE.SphereGeometry(1.8, 32, 32);
-        const planetMat = new THREE.MeshPhongMaterial({ color: 0x00d2ff, wireframe: true, transparent: true, opacity: 0.2 });
-        const planet = new THREE.Mesh(planetGeo, planetMat);
+        const planet = new THREE.Mesh(
+            new THREE.SphereGeometry(2, 32, 32),
+            new THREE.MeshPhongMaterial({ color: 0x00d2ff, wireframe: true, transparent: true, opacity: 0.15 })
+        );
         scene.add(planet);
-
         const light = new THREE.PointLight(0xffffff, 1, 100);
         light.position.set(5, 5, 5);
         scene.add(light);
@@ -145,36 +150,55 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            planet.rotation.y += 0.003;
+            planet.rotation.y += 0.002;
             renderer.render(scene, camera);
         }
         animate();
 
-        // RAKET VƏ GİRİŞ
+        // --- LOGİKA VƏ ANIMASİYALAR ---
         window.onload = () => {
             const rock = document.getElementById('rocket');
             const snd = document.getElementById('rocket-sound');
+            
             setTimeout(() => {
                 rock.classList.add('fly-animation');
                 snd.play().catch(() => {});
             }, 500);
+
             setTimeout(() => {
                 document.getElementById('intro-screen').style.opacity = '0';
                 setTimeout(() => document.getElementById('intro-screen').remove(), 1000);
             }, 3000);
 
-            // Məlumatları URL-dən oxumaq
+            // Botdan gələn məlumatları oxu
             const params = new URLSearchParams(window.location.search);
-            if(params.get('balance')) document.getElementById('u_bal').innerText = params.get('balance') + " ₼";
-            
-            // İstifadəçi adı
+            const bal = params.get('balance');
+            const servicesRaw = params.get('services');
+
+            if(bal) document.getElementById('u_bal').innerText = bal + " ₼";
+
+            if(servicesRaw) {
+                try {
+                    const services = JSON.parse(servicesRaw);
+                    const list = document.getElementById('services-list');
+                    list.innerHTML = "";
+                    services.forEach(s => {
+                        list.innerHTML += `
+                            <div class="service-item">
+                                <div>
+                                    <div style="font-weight:bold; font-size:13px;">${s.name}</div>
+                                    <div style="font-size:11px; color:#4ade80; margin-top:4px;">${s.rate} ₼ / 1000 ədəd</div>
+                                </div>
+                                <button class="btn-buy" onclick="order('${s.service}')">Al</button>
+                            </div>`;
+                    });
+                } catch(e) { console.error("Xidmət xətası:", e); }
+            }
+
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 document.getElementById('u_name').innerText = tg.initDataUnsafe.user.first_name;
                 if(tg.initDataUnsafe.user.photo_url) document.getElementById('u_pic').src = tg.initDataUnsafe.user.photo_url;
             }
-
-            // Xidmətləri Render etmək (Demo xidmətlər, botdan gələnlər bura düşəcək)
-            renderServices();
         };
 
         function showTab(t, el) {
@@ -186,31 +210,9 @@
         }
 
         function fileSent() {
-            document.getElementById('status').innerText = "Göndərilir... Zəhmət olmasa gözləyin.";
+            document.getElementById('status').innerText = "Qəbz göndərildi! Botu yoxlayın.";
             tg.sendData("qebz_atildi");
-            setTimeout(() => tg.close(), 1500);
-        }
-
-        function renderServices() {
-            const list = document.getElementById('services-list');
-            // Botdan gələn datanı bura bağlayacağıq. Hələlik vizual üçün:
-            const demo = [
-                {id: 1, name: "Instagram Takipçi", rate: "1.20"},
-                {id: 2, name: "TikTok Bəyəni", rate: "0.50"},
-                {id: 3, name: "Telegram Abunə", rate: "0.80"}
-            ];
-            list.innerHTML = "";
-            demo.forEach(s => {
-                list.innerHTML += `
-                    <div class="service-container">
-                        <div>
-                            <div style="font-weight:bold;">${s.name}</div>
-                            <div style="font-size:11px; color:#4ade80;">${s.rate} ₼ / 1000 ədəd</div>
-                        </div>
-                        <button class="btn-buy" onclick="order('${s.id}')">Al</button>
-                    </div>
-                `;
-            });
+            setTimeout(() => tg.close(), 1200);
         }
 
         function order(id) {
