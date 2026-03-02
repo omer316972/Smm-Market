@@ -3,7 +3,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 
 # BU İKİ SATIRI KENDİNE GÖRE DÜZENLE ⬇️
-BOT_TOKEN = "8401084300:AAHoqssYFt97jR7Q5iuI3joILuMTAoQH0WI"  # Token doğru
+BOT_TOKEN = "8401084300:AAEjWNpxFHkO_0vlgCQv-hx5j8ISpnO2bQM"  # Token doğru
 ADMIN_ID = 8566739483  # BURAYI KENDİ TELEGRAM ID'İNLE DEĞİŞTİR!
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
